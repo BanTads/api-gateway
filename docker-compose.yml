@@ -1,0 +1,83 @@
+version: '3'
+services:
+#  cliente:
+#    build:
+#      context: ./cliente
+#    ports:
+#      - "8081:8081"
+#    depends_on:
+#      - cliente-db
+#      - rabbitmq
+#
+#  cliente-db:
+#    image: mysql:latest
+#    environment:
+#      MYSQL_DATABASE: cliente
+#    volumes:
+#      - cliente-db-data:/var/lib/mysql
+
+#  conta:
+#    build:
+#      context: ./conta
+#    ports:
+#      - "8082:8082"
+#    depends_on:
+#      - conta-db
+#      - rabbitmq
+#
+#  conta-db:
+#    image: mysql:latest
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root_password
+#      MYSQL_DATABASE: conta_db
+#    volumes:
+#      - conta-db-data:/var/lib/mysql
+#
+#  gerentes:
+#    build:
+#      context: ./gerentes
+#    ports:
+#      - "8083:8083"
+#    depends_on:
+#      - gerentes-db
+#      - rabbitmq
+#
+#  gerentes-db:
+#    image: mysql:latest
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root_password
+#      MYSQL_DATABASE: gerentes_db
+#    volumes:
+#      - gerentes-db-data:/var/lib/mysql
+#
+#  orquestrador:
+#    build:
+#      context: ./orquestrador
+#    ports:
+#      - "8084:8084"
+#    depends_on:
+#      - orquestrador-db
+#      - rabbitmq
+#
+#  orquestrador-db:
+#    image: mysql:latest
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root_password
+#      MYSQL_DATABASE: orquestrador_db
+#    volumes:
+#      - orquestrador-db-data:/var/lib/mysql
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+#volumes:
+#  cliente-db-data:
+#  conta-db-data:
+#  gerentes-db-data:
+#  orquestrador-db-data:

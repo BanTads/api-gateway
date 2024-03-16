@@ -1,0 +1,35 @@
+server:
+  port: 8008
+springdoc:
+  swagger-ui:
+    path: "/api-docs"
+spring:
+  rabbitmq:
+    host: host.docker.internal
+    port: 5672
+    username: guest
+    password: guest
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    username: root
+    jdbc-url: jdbc:mysql://localhost:3306/cliente?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/cliente?useUnicode=true&characterEncoding=utf-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      idle-timeout: 300000
+      jdbc-url: jdbc:mysql://localhost:3306/cliente?useUnicode=true&characterEncoding=utf-8
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      pool-name: defaultLink
+      minimum-idle: 1
+      maximum-pool-size: 2000
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 500
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: true
