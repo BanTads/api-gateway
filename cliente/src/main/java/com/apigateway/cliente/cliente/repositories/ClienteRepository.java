@@ -26,10 +26,7 @@ public class ClienteRepository {
 
     public List<ClienteDTO> getAllClients(){
         jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-        String sql = String.format("""
-            SELECT * FROM clientes;
-        """);
-
+        String sql = "SELECT c.*, e.logradouro, e.numero, e.cidade, e.uf, e.cep FROM clientes c INNER JOIN enderecos e ON (c.id_endereco = e.id)";
         try {
             return jdbcTemplate.query(sql, new ClienteDtoRowMapper());
         } catch (EmptyResultDataAccessException e) {
