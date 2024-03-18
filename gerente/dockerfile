@@ -1,4 +1,4 @@
 FROM openjdk:11-jre-slim
 WORKDIR /app
-COPY ./gerentes/target/gerentes.jar app.jar
+COPY ./gerente/target/gerente.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

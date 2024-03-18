@@ -1,13 +1,13 @@
-package com.apigateway.gerentes.gerentes;
+package com.apigateway.gerente.gerente;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GerentesApplication {
+public class GerenteApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GerentesApplication.class, args);
+		SpringApplication.run(GerenteApplication.class, args);
 	}
 
 }

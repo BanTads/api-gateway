@@ -33,22 +33,22 @@ services:
 #    volumes:
 #      - conta-db-data:/var/lib/mysql
 #
-#  gerentes:
+#  gerente:
 #    build:
-#      context: ./gerentes
+#      context: ./gerente
 #    ports:
 #      - "8083:8083"
 #    depends_on:
-#      - gerentes-db
+#      - gerente-db
 #      - rabbitmq
 #
-#  gerentes-db:
+#  gerente-db:
 #    image: mysql:latest
 #    environment:
 #      MYSQL_ROOT_PASSWORD: root_password
-#      MYSQL_DATABASE: gerentes_db
+#      MYSQL_DATABASE: gerente_db
 #    volumes:
-#      - gerentes-db-data:/var/lib/mysql
+#      - gerente-db-data:/var/lib/mysql
 #
 #  orquestrador:
 #    build:
@@ -79,5 +79,5 @@ services:
 #volumes:
 #  cliente-db-data:
 #  conta-db-data:
-#  gerentes-db-data:
+#  gerente-db-data:
 #  orquestrador-db-data:

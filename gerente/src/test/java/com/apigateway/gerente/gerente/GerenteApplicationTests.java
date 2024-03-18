@@ -1,10 +1,10 @@
-package com.apigateway.gerentes.gerentes;
+package com.apigateway.gerente.gerente;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GerentesApplicationTests {
+class GerenteApplicationTests {
 
 	@Test
 	void contextLoads() {
