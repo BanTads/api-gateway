@@ -2,9 +2,11 @@ package com.apigateway.cliente.cliente.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
-public class EnderecoDTO {
+public class EnderecoDTO implements Serializable {
     private Long id;
     private String tipo;
     private String logradouro;
