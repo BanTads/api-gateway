@@ -10,12 +10,12 @@ public class GerenteDtoRowMapper implements RowMapper<GerenteDTO> {
 
     @Override
     public GerenteDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-        ClienteDTO gerenteDTO = new GerenteDTO();
-        gerenteDTO.setId(rs.getLong("id"));
-        gerenteDTO.setNome(rs.getString("nome"));
-        gerenteDTO.setEmail(rs.getString("email"));
-        gerenteDTO.setCpf(rs.getString("cpf"));
-        gerenteDTO.setTelefone(rs.getString("telefone"));
+        GerenteDTO gerenteDTO = new GerenteDTO();
+        GerenteDTO.setId(rs.getLong("id"));
+        GerenteDTO.setNome(rs.getString("nome"));
+        GerenteDTO.setEmail(rs.getString("email"));
+        GerenteDTO.setCpf(rs.getString("cpf"));
+        GerenteDTO.setTelefone(rs.getString("telefone"));
 
         return gerenteDTO;
     }

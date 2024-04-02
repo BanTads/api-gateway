@@ -23,7 +23,7 @@ public class GerenteController {
 
     private final GerenteService gerenteService;
 
-    public GerenteController(ClienteService clienteService) {
+    public GerenteController(GerenteService gerenteService) {
         this.gerenteService = gerenteService;
     }
 

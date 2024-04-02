@@ -3,7 +3,7 @@ import lombok.Getter;
 import lombok.Setter;
 @Getter
 @Setter
-public class GerenteDTO 
+public class GerenteDTO
 {
     private Long id;
     private String nome;

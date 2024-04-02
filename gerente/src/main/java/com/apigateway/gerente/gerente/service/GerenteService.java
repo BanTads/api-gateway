@@ -1,13 +1,11 @@
 package com.apigateway.gerente.gerente.service;
 
-import com.apigateway.cliente.cliente.dto.ClienteDTO;
 import com.apigateway.gerente.gerente.dto.GerenteDTO;
 import com.apigateway.gerente.gerente.repositories.GerenteRepository;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -29,7 +27,7 @@ public class GerenteService {
         return gerenteRepository.existeGerenteComCpf(cpf);
     }
 
-    @Transactional
+    //@Transactional
     public GerenteDTO adicionarGerente(GerenteDTO gerenteDTO) {
         try {
             Long idGerente = gerenteRepository.adicionarGerente(gerenteDTO);
