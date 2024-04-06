@@ -16,7 +16,6 @@ import com.apigateway.orquestrador.orquestrador.constants.QueueConstants;
 public class RabbitMQConnection {
     private static final Logger logger = LoggerFactory.getLogger(RabbitMQConnection.class);
 
-    // Se você deseja usar uma exchange personalizada, configure-a aqui ou em application.properties
     @Value("${rabbitmq.exchange:api-gateway-exchange}")
     private String nameExchange;
 
