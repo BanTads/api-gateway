@@ -1,20 +1,33 @@
 version: '3'
 services:
 #  cliente:
-#    build:
-#      context: ./cliente
+#    image: cliente
+#    container_name: cliente_ms
 #    ports:
-#      - "8081:8081"
+#      - "8081:8008"
 #    depends_on:
 #      - cliente-db
 #      - rabbitmq
-#
-#  cliente-db:
+  cliente-pg-db:
+    image: postgres:alpine
+    volumes:
+      - ./init-script/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+#  mysql-cliente-db:
 #    image: mysql:latest
 #    environment:
+#      MYSQL_ALLOW_EMPTY_PASSWORD: true
 #      MYSQL_DATABASE: cliente
+#    ports:
+#        - "3306:3306"
 #    volumes:
 #      - cliente-db-data:/var/lib/mysql
+
+
+
 
 #  conta:
 #    build:
@@ -76,8 +89,8 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
 
-#volumes:
-#  cliente-db-data:
+volumes:
+  cliente-db:
 #  conta-db-data:
 #  gerente-db-data:
 #  orquestrador-db-data:

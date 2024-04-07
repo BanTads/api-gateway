@@ -1,4 +1,4 @@
-package com.apigateway.cliente.cliente.dto;
+package com.apigateway.orquestrador.orquestrador.dto;
 import lombok.Getter;
 import lombok.Setter;
 

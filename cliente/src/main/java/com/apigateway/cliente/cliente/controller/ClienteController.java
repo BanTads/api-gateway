@@ -1,11 +1,15 @@
 package com.apigateway.cliente.cliente.controller;
-
 import com.apigateway.cliente.cliente.dto.ClienteDTO;
 import com.apigateway.cliente.cliente.dto.EnderecoDTO;
-import com.apigateway.cliente.cliente.service.ClienteService;
+import com.apigateway.cliente.cliente.repositories.ClienteRepository;
+import com.apigateway.cliente.cliente.repositories.EnderecoRepository;
+import com.apigateway.cliente.cliente.services.MessagingService;
 import com.apigateway.cliente.cliente.utils.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.log4j.Log4j2;
+import com.apigateway.cliente.cliente.model.Cliente;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/cliente")
 @Log4j2
@@ -21,22 +26,27 @@ import java.util.List;
         description = "Contém todos os endpoints relacionados ao cliente"
 )
 public class ClienteController {
-//    private ClienteService clienteService;
-
-    private final ClienteService clienteService;
-
-    public ClienteController(ClienteService clienteService) {
-        this.clienteService = clienteService;
-    }
-
+    @Autowired
+    private ClienteRepository repo;
+    @Autowired
+    private EnderecoRepository repoEnd;
+    @Autowired
+    private ModelMapper mapper;
+    @Autowired
+    private MessagingService messagingService;
     @GetMapping("listar")
     @Operation(
             summary = "Endpoint para listagem de clientes",
             description = "Retorna uma lista com todos os clientes"
     )
-    public ResponseEntity<List<ClienteDTO>> listAll() {
-        List<ClienteDTO> clientes = clienteService.getAllClients();
-        return ResponseEntity.ok(clientes);
+    public ResponseEntity<Object> listAll() {
+        try {
+            List<Cliente> clientes = repo.findAll();
+            return new ResponseEntity<>(new Response(true, "Lista de clientes retornada com sucesso", clientes), HttpStatus.OK);
+        }catch (Exception e) {
+            String mensagemErro = e.getMessage();
+            return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("adicionar")
@@ -55,13 +65,8 @@ public class ClienteController {
             if (endereco.getLogradouro() == null || endereco.getNumero() == null || endereco.getCidade() == null || endereco.getUf() == null || endereco.getCep() == null) {
                 return new ResponseEntity<>(new Response(false, "Dados do endereço inválidos", null), HttpStatus.BAD_REQUEST);
             }
-
-            if (clienteService.existeClienteComCpf(clienteDTO.getCpf(), clienteDTO.getEmail())) {
-                return new ResponseEntity<>(new Response(false, "Já existe um cliente cadastrado com o e-mail ou CPF informado.", null), HttpStatus.UNAUTHORIZED);
-            }
-
-            ClienteDTO clienteObj = clienteService.adicionarCliente(clienteDTO);
-
+            Cliente clienteObj = repo.saveAndFlush(mapper.map(clienteDTO, Cliente.class));
+            this.messagingService.sendMessage("cliente.created", clienteObj);
             return new ResponseEntity<>(new Response(true, "Cliente criado com sucesso", clienteObj), HttpStatus.OK);
         } catch (Exception e) {
             String mensagemErro = e.getMessage();
