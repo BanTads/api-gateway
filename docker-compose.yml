@@ -9,6 +9,13 @@ services:
 #      - cliente-db
 #      - rabbitmq
 #
+#  auth:
+#   build:
+#      context: ./auth
+#    ports:
+#      - "8080:8080"
+
+
 #  cliente-db:
 #    image: mysql:latest
 #    environment:
@@ -81,3 +88,16 @@ services:
 #  conta-db-data:
 #  gerentes-db-data:
 #  orquestrador-db-data:
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: auth_ms
+    ports:
+        - 27017:27017
+
+
+
