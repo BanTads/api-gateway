@@ -1,10 +1,14 @@
 package com.apigateway.gerente.gerente.controller;
 
 import com.apigateway.gerente.gerente.dto.GerenteDTO;
-import com.apigateway.gerente.gerente.service.GerenteService;
+import com.apigateway.gerente.gerente.repositories.GerenteRepository;
+import com.apigateway.gerente.gerente.services.MessagingService;
 import com.apigateway.gerente.gerente.utils.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.log4j.Log4j2;
+import com.apigateway.gerente.gerente.model.Gerente;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/gerente")
 @Log4j2
@@ -20,21 +25,26 @@ import java.util.List;
         description = "Contém todos os endpoints relacionados ao gerente"
 )
 public class GerenteController {
-
-    private final GerenteService gerenteService;
-
-    public GerenteController(GerenteService gerenteService) {
-        this.gerenteService = gerenteService;
-    }
+    @Autowired
+    private GerenteRepository repo;
+    @Autowired
+    private ModelMapper mapper;
+    @Autowired
+    private MessagingService messagingService;
 
     @GetMapping("listar")
     @Operation(
             summary = "Endpoint para listagem de gerentes",
             description = "Retorna uma lista com todos os gerentes"
     )
-    public ResponseEntity<List<GerenteDTO>> listAll() {
-        List<GerenteDTO> gerente = gerenteService.getGerentes();
-        return ResponseEntity.ok(gerente);
+    public ResponseEntity<Object> listAll() {
+        try{
+            List<Gerente> gerentes = repo.findAll();
+            return new ResponseEntity<>(new Response(true, "Lista de gerentes retornada com sucesso", gerentes), HttpStatus.OK);
+        }catch (Exception e){
+            String mensagemErro = e.getMessage();
+            return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("adicionar")
@@ -49,11 +59,12 @@ public class GerenteController {
                 return new ResponseEntity<>(new Response(false, "Dados do gerente inválidos", null), HttpStatus.BAD_REQUEST);
             }
 
-            if (gerenteService.existeGerenteComCpf(gerenteDTO.getCpf())) {
+            if (gerenteDTO.getCpf() == null) {
                 return new ResponseEntity<>(new Response(false, "Já existe um gerente cadastrado com o CPF informado.", null), HttpStatus.UNAUTHORIZED);
             }
 
-            GerenteDTO gerenteObj = gerenteDTO.adicionarCliente(gerenteDTO);
+            //GerenteDTO gerenteObj = gerenteDTO.adicionarCliente(gerenteDTO);
+            Gerente gerenteObj = repo.saveAndFlush(mapper.map(gerenteDTO, Gerente.class));
 
             return new ResponseEntity<>(new Response(true, "Gerente criado com sucesso", gerenteObj), HttpStatus.OK);
         } catch (Exception e) {
@@ -74,11 +85,12 @@ public class GerenteController {
                 return new ResponseEntity<>(new Response(false, "Dados do gerente inválidos", null), HttpStatus.BAD_REQUEST);
             }
 
-            if (gerenteService.existeGerenteComCpf(gerenteDTO.getCpf())) {
+            if (gerenteDTO.getCpf() == null) {
                 return new ResponseEntity<>(new Response(false, "Já existe um gerente cadastrado com o CPF informado.", null), HttpStatus.UNAUTHORIZED);
             }
 
-            GerenteDTO gerenteObj = gerenteDTO.alterarGerente(gerenteDTO);
+            //GerenteDTO gerenteObj = gerenteDTO.alterarGerente(gerenteDTO);
+            Gerente gerenteObj = repo.saveAndFlush(mapper.map(gerenteDTO, Gerente.class));
 
             return new ResponseEntity<>(new Response(true, "Gerente alterado com sucesso", gerenteObj), HttpStatus.OK);
         } catch (Exception e) {
@@ -99,7 +111,8 @@ public class GerenteController {
                 return new ResponseEntity<>(new Response(false, "Dados do gerente inválidos", null), HttpStatus.BAD_REQUEST);
             }
 
-            gerenteDTO.deletarGerente(gerenteDTO);
+            //gerenteDTO.deletarGerente(gerenteDTO);
+            Gerente gerenteObj = repo.saveAndFlush(mapper.map(gerenteDTO, Gerente.class));
 
             return new ResponseEntity<>(new Response(true, "Gerente deletado com sucesso", null), HttpStatus.OK);
         } catch (Exception e) {
