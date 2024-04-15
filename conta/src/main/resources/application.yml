@@ -13,4 +13,4 @@ spring:
   datasource:
     username: postgres
     password: postgres
-    url: jdbc:postgresql://localhost/contas
+    url: jdbc:postgresql://localhost/conta

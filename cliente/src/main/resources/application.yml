@@ -5,12 +5,18 @@ springdoc:
     path: "/api-docs"
 spring:
   rabbitmq:
-#    host: host.docker.internal
-    host: 192.168.0.183
+    host: host.docker.internal
+#    host: 192.168.0.183
     port: 5672
     username: guest
     password: guest
   datasource:
     username: postgres
     password: postgres
-    url: jdbc:postgresql://localhost/cliente
+    url: jdbc:postgresql://host.docker.internal:5432/cliente
+    driver-class-name=org: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    generate-ddl: false
+

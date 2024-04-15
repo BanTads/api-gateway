@@ -1,13 +1,12 @@
 version: '3'
 services:
-#  cliente:
-#    image: cliente
-#    container_name: cliente_ms
-#    ports:
-#      - "8081:8008"
-#    depends_on:
-#      - cliente-db
-#      - rabbitmq
+  cliente:
+    image: cliente
+    container_name: cliente_ms
+    ports:
+      - "8081:8008"
+    depends_on:
+      - rabbitmq
   cliente-pg-db:
     image: postgres:alpine
     volumes:
@@ -16,6 +15,13 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: postgres
+  orquestrador:
+    image: orquestrador
+    container_name: orquestrador_ms
+    ports:
+      - "8082:8009"
+    depends_on:
+      - rabbitmq
 #  mysql-cliente-db:
 #    image: mysql:latest
 #    environment:
