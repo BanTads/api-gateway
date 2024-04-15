@@ -1,26 +1,16 @@
+server:
+  port: 8009
+springdoc:
+  swagger-ui:
+    path: "/api-docs"
 spring:
+  rabbitmq:
+    #    host: host.docker.internal
+    host: 192.168.0.183
+    port: 5672
+    username: guest
+    password: guest
   datasource:
-    type: com.zaxxer.hikari.HikariDataSource
-    username: usuario
-    password: senha
-    jdbc-url: jdbc:mysql://10.2110:3306/monitoramento?useUnicode=true&characterEncoding=utf-8
-    url: jdbc:mysql://10.210:3306/monitoramento?useUnicode=true&characterEncoding=utf-8
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      idle-timeout: 300000
-      jdbc-url: jdbc:mysql://10.210:3306/monitoramento?useUnicode=true&characterEncoding=utf-8
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      pool-name: defaultLink
-      minimum-idle: 1
-      maximum-pool-size: 2000
-      data-source-properties:
-        cachePrepStmts: true
-        prepStmtCacheSize: 500
-        prepStmtCacheSqlLimit: 2048
-        useServerPrepStmts: true
-        useLocalSessionState: true
-        rewriteBatchedStatements: true
-        cacheResultSetMetadata: true
-        cacheServerConfiguration: true
-        elideSetAutoCommits: true
-        maintainTimeStats: true
+    username: postgres
+    password: postgres
+    url: jdbc:postgresql://localhost/contas
