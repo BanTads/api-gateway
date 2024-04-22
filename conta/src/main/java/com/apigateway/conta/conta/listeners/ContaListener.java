@@ -14,7 +14,7 @@ public class ContaListener {
 
     @RabbitListener(queues = QueueConstants.CREATE_CLIENT_ACCOUNT)
     public void receiveMessage(ClienteDTO clienteDTO) {
-
-        this.messagingService.sendMessage(QueueConstants.CREATE_CLIENT_ACCOUNT, clienteDTO);
+        System.out.println(clienteDTO);
+//        this.messagingService.sendMessage(QueueConstants.CREATE_CLIENT_ACCOUNT, clienteDTO);
     }
 }

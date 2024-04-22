@@ -1,12 +1,9 @@
 server:
   port: 8009
-springdoc:
-  swagger-ui:
-    path: "/api-docs"
 spring:
   rabbitmq:
-#    host: host.docker.internal
-    host: 192.168.0.183
+    host: host.docker.internal
+#    host: 10.110.0.89
     port: 5672
     username: guest
     password: guest

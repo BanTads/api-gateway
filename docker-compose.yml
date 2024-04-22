@@ -16,8 +16,8 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
   orquestrador:
-    image: orquestrador
-    container_name: orquestrador_ms
+    image: orquestrador_image
+    container_name: ms_orquestrador
     ports:
       - "8082:8009"
     depends_on:
