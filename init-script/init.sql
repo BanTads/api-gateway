@@ -28,8 +28,8 @@ CREATE DATABASE conta;
 
 CREATE TABLE public.contas (
     id SERIAL PRIMARY KEY,
+    aprovada boolean,
     id_cliente INT,
-    numero_conta VARCHAR(20) UNIQUE NOT NULL,
     data_criacao DATE,
     limite DECIMAL(10, 2),
     id_gerente INT

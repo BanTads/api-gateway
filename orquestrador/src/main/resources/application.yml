@@ -1,6 +1,8 @@
 server:
   port: 8009
 spring:
+  application:
+    name: orquestrador
   rabbitmq:
     host: host.docker.internal
 #    host: 10.110.0.89

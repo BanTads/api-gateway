@@ -14,8 +14,8 @@ public class ClienteListener {
     @Autowired
     private MessagingService messagingService;
 
-//    @RabbitListener(queues = QueueConstants.CLIENTE_CREATED)
-//    public void receiveMessage(ClienteDTO clienteDTO) {
-//        this.messagingService.sendMessage(QueueConstants.CREATE_CLIENT_ACCOUNT, clienteDTO);
-//    }
+    @RabbitListener(queues = QueueConstants.CLIENTE_CREATED)
+    public void receiveMessage(ClienteDTO clienteDTO) {
+        this.messagingService.sendMessage(QueueConstants.CREATE_CLIENT_ACCOUNT, clienteDTO);
+    }
 }
