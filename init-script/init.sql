@@ -27,7 +27,7 @@ CREATE DATABASE conta;
 \c conta;
 
 CREATE TABLE public.contas (
-    id SERIAL PRIMARY KEY,
+    numero_conta SERIAL primary key,
     aprovada boolean,
     id_cliente INT,
     data_criacao DATE,
@@ -44,6 +44,17 @@ CREATE TABLE public.movimentacao (
     valor DECIMAL(10, 2),
     id_conta_origem INT,
     id_conta_destino INT,
-    CONSTRAINT fk_conta_origem FOREIGN KEY (id_conta_origem) REFERENCES public.contas(id),
-    CONSTRAINT fk_conta_destino FOREIGN KEY (id_conta_destino) REFERENCES public.contas(id)
+    CONSTRAINT fk_conta_origem FOREIGN KEY (id_conta_origem) REFERENCES public.contas(numero_conta),
+    CONSTRAINT fk_conta_destino FOREIGN KEY (id_conta_destino) REFERENCES public.contas(numero_conta)
+);
+
+CREATE DATABASE gerente;
+\c gerente;
+CREATE TABLE public.gerentes (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    cpf VARCHAR(14) UNIQUE NOT NULL,
+    telefone VARCHAR(20) NOT NULL,
+    quantidade_contas integer
 );

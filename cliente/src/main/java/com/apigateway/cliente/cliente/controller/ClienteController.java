@@ -10,6 +10,7 @@ import lombok.extern.log4j.Log4j2;
 import com.apigateway.cliente.cliente.model.Cliente;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -68,6 +69,9 @@ public class ClienteController {
             Cliente clienteObj = repo.saveAndFlush(mapper.map(clienteDTO, Cliente.class));
             this.messagingService.sendMessage("cliente.created", clienteObj);
             return new ResponseEntity<>(new Response(true, "Cliente criado com sucesso", clienteObj), HttpStatus.OK);
+        } catch (DataIntegrityViolationException e) {
+            String mensagemErro = "Um registro com o mesmo CPF ou e-mail já existe.";
+            return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             String mensagemErro = e.getMessage();
             return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.BAD_REQUEST);

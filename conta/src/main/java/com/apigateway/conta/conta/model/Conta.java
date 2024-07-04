@@ -10,8 +10,8 @@ import java.util.Date;
 public class Conta implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "numero_conta")
+    private Long numeroConta;
 
     @Column(name="id_cliente", unique = true)
     private Long idCliente;
@@ -31,8 +31,8 @@ public class Conta implements Serializable {
     public Conta() {
         super();
     }
-    public Conta(Long id, Long idCliente, Boolean aprovada, Date dataCriacao, double limite, Long idGerente) {
-        this.id = id;
+    public Conta(Long numeroConta, Long idCliente, Boolean aprovada, Date dataCriacao, double limite, Long idGerente) {
+        this.numeroConta = numeroConta;
         this.idCliente = idCliente;
         this.aprovada = aprovada;
         this.dataCriacao = dataCriacao;
@@ -40,12 +40,12 @@ public class Conta implements Serializable {
         this.idGerente = idGerente;
     }
 
-    public long getId() {
-        return id;
+    public long getNumeroConta() {
+        return numeroConta;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setNumeroConta(Long numeroConta) {
+        this.numeroConta = numeroConta;
     }
 
     public long getIdCliente() {

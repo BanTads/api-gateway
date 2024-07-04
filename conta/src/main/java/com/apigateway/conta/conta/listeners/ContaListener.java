@@ -36,6 +36,7 @@ public class ContaListener {
             }
 
             Conta contaCriada = repo.saveAndFlush(mapper.map(account, Conta.class));
+            this.messagingService.sendMessage(QueueConstants.ASSIGN_MANAGER_TO_ACCOUNT, contaCriada.getNumeroConta());
         }catch (Exception e){
             System.out.println(e);
         }

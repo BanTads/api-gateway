@@ -1,5 +1,5 @@
 server:
-  port: 8010
+  port: 8011
 springdoc:
   swagger-ui:
     path: "/api-docs"
@@ -13,4 +13,9 @@ spring:
   datasource:
     username: postgres
     password: postgres
-    url: jdbc:postgresql://localhost/conta
+    url: jdbc:postgresql://10.110.0.95:5432/gerente
+    driver-class-name=org: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    generate-ddl: false
