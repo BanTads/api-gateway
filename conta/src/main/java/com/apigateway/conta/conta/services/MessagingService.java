@@ -12,4 +12,8 @@ public class MessagingService {
     public void sendMessage(String queueName, Object message){
         this.template.convertAndSend(queueName, message);
     }
+
+    public Object sendAndReceiveMessage(String queueName, Object message) {
+        return this.template.convertSendAndReceive("", queueName, message);  // "" indica a default exchange
+    }
 }

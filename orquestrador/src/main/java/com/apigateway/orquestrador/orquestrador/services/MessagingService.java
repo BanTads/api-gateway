@@ -10,6 +10,7 @@ public class MessagingService {
     private RabbitTemplate template;
 
     public void sendMessage(String queueName, Object message){
+//        this.template.convertSendAndReceive(queueName, message);
         this.template.convertAndSend(queueName, message);
     }
 }

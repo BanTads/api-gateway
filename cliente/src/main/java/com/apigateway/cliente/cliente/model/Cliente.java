@@ -24,7 +24,7 @@ public class Cliente implements Serializable {
     private String cpf;
 
     @Column(name="salario")
-    private BigDecimal salario;
+    private float salario;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_endereco", referencedColumnName = "id")
@@ -34,7 +34,7 @@ public class Cliente implements Serializable {
         super();
     }
 
-    public Cliente(long id, String nome, String email, String cpf, Endereco endereco, BigDecimal salario, String telefone) {
+    public Cliente(long id, String nome, String email, String cpf, Endereco endereco, float salario, String telefone) {
         super();
         this.id = id;
         this.nome = nome;
@@ -93,11 +93,11 @@ public class Cliente implements Serializable {
         this.endereco = endereco;
     }
 
-    public BigDecimal getSalario() {
+    public float getSalario() {
         return salario;
     }
 
-    public void setSalario(BigDecimal salario) {
+    public void setSalario(float salario) {
         this.salario = salario;
     }
 }

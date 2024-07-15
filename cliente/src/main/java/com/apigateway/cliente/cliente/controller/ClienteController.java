@@ -1,11 +1,13 @@
 package com.apigateway.cliente.cliente.controller;
-import com.apigateway.cliente.cliente.dto.ClienteDTO;
-import com.apigateway.cliente.cliente.dto.EnderecoDTO;
+import com.apigateway.cliente.cliente.dto.*;
 import com.apigateway.cliente.cliente.repositories.ClienteRepository;
 import com.apigateway.cliente.cliente.repositories.EnderecoRepository;
 import com.apigateway.cliente.cliente.services.MessagingService;
 import com.apigateway.cliente.cliente.utils.Response;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.log4j.Log4j2;
 import com.apigateway.cliente.cliente.model.Cliente;
 import org.modelmapper.ModelMapper;
@@ -15,8 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.google.gson.Gson;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -35,6 +40,9 @@ public class ClienteController {
     private ModelMapper mapper;
     @Autowired
     private MessagingService messagingService;
+    @Autowired
+    private Gson gson; // Reutilizando a instância Gson
+
     @GetMapping("listar")
     @Operation(
             summary = "Endpoint para listagem de clientes",
@@ -55,6 +63,7 @@ public class ClienteController {
             summary = "Endpoint para adicionar cliente",
             description = "Retorna o último cliente adicionado"
     )
+    @ApiResponse(responseCode = "403", description = "CPF ou E-mail duplicado", content = @Content(schema = @Schema(implementation = Response.class)))
     public ResponseEntity<Object> inserir(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Request ilustrativa") @RequestBody ClienteDTO clienteDTO)
     {
         try {
@@ -71,7 +80,52 @@ public class ClienteController {
             return new ResponseEntity<>(new Response(true, "Cliente criado com sucesso", clienteObj), HttpStatus.OK);
         } catch (DataIntegrityViolationException e) {
             String mensagemErro = "Um registro com o mesmo CPF ou e-mail já existe.";
-            return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            String mensagemErro = e.getMessage();
+            return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("relatorio")
+    @Operation(
+            summary = "Endpoint para relatório de clientes",
+            description = "Retorna o relatório de clientes R16"
+    )
+    public ResponseEntity<Object> relatorioClientes() {
+        try {
+            List<Cliente> clientes = repo.findAll();
+            List<ClienteRelatorioDTO> contasClientes = clientes.stream().map(cliente -> {
+                String jsonConta = (String) messagingService.sendAndReceiveMessage("conta.get.info", cliente.getId());
+                ContaDTO conta = gson.fromJson(jsonConta, ContaDTO.class);
+                ClienteRelatorioDTO clienteDTO = new ClienteRelatorioDTO();
+
+                System.out.println(conta.getNumeroConta());
+                if (conta != null && conta.getIdGerente() != null) {
+                    try {
+                        String jsonGerente = (String) messagingService.sendAndReceiveMessage("gerente.get.info", conta.getIdGerente());
+                        GerenteDTO gerente = gson.fromJson(jsonGerente, GerenteDTO.class);
+                        clienteDTO.setGerente(gerente);
+                    } catch (Exception e) {
+                        System.err.println("Erro ao obter informações do gerente: " + e.getMessage());
+                    }
+                }
+
+                clienteDTO.setId(cliente.getId());
+                clienteDTO.setNome(cliente.getNome());
+                clienteDTO.setEmail(cliente.getEmail());
+                clienteDTO.setSalario(cliente.getSalario());
+                clienteDTO.setCpf(cliente.getCpf());
+                clienteDTO.setTelefone(cliente.getTelefone());
+
+                if(conta != null){
+                    clienteDTO.setConta(conta);
+                }
+
+                return clienteDTO;
+            }).sorted(Comparator.comparing(ClienteRelatorioDTO::getNome)).collect(Collectors.toList());
+
+            return new ResponseEntity<>(new Response(true, "Relatório de clientes retornada com sucesso", contasClientes), HttpStatus.OK);
         } catch (Exception e) {
             String mensagemErro = e.getMessage();
             return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.BAD_REQUEST);

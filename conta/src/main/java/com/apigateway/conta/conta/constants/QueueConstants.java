@@ -13,6 +13,10 @@ public class QueueConstants {
 
     // Gerente-related queues
     public static final String ASSIGN_MANAGER_TO_ACCOUNT = "account.assign.manager";
+    public static final String CLIENT_GET_INFO = "client.get.info";
+    public static final String REASSIGN_MANAGER_ACCOUNT_COMPLETED = "account.reassign.manager.completed";
+    public static final String ASSIGN_MANAGER_ACCOUNT_COMPLETED = "account.assign.manager.completed";
+    public static final String REASSIGN_MANAGER_TO_ACCOUNT = "account.reassign.manager";
     public static final String MANAGER_ASSIGNED = "manager.assigned";
     public static final String MANAGER_CREATED = "manager.created";
     public static final String MANAGER_EDITED = "manager.edited";
