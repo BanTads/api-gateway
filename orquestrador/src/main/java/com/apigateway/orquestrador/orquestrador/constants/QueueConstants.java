@@ -36,6 +36,7 @@ public class QueueConstants {
     public static final String GET_ClIENT_INFO = "client.get.info";
     public static final String GET_CONTA_INFO = "conta.get.info";
     public static final String GET_GERENTE_INFO = "gerente.get.info";
+    public static final String CLIENT_INSERT = "client.insert";
 
     // Array of all queues for convenience
     public static final String[] ALL_QUEUES = {
@@ -44,6 +45,6 @@ public class QueueConstants {
             ASSIGN_MANAGER_TO_ACCOUNT, REASSIGN_MANAGER_TO_ACCOUNT, REASSIGN_MANAGER, MANAGER_ASSIGNED, MANAGER_CREATED, MANAGER_EDITED,
             MANAGER_REMOVED, CREATE_MANAGER_USER, UPDATE_MANAGER_USER, REMOVE_MANAGER_USER, REASSIGN_MANAGER_ACCOUNT_COMPLETED,
             UPDATE_MANAGER_ACCOUNT_BALANCE, ASSIGN_MANAGER_ACCOUNT_READ, ACCOUNT_TRANSACTION_COMPLETED, REMOVE_MANAGER, ASSIGN_MANAGER_ACCOUNT_COMPLETED,
-            ACCOUNT_BALANCE_UPDATED, GET_ClIENT_INFO, GET_CONTA_INFO, GET_GERENTE_INFO
+            ACCOUNT_BALANCE_UPDATED, GET_ClIENT_INFO, GET_CONTA_INFO, GET_GERENTE_INFO, CLIENT_INSERT
     };
 }

@@ -44,11 +44,11 @@ public class GerenteListener {
             return;
         }
 
-        gerenteComMenosContas.setQuantidadeContas(gerenteComMenosContas.getQuantidadeContas() + 1);
-        repo.saveAndFlush(gerenteComMenosContas);
+//        gerenteComMenosContas.setQuantidadeContas(gerenteComMenosContas.getQuantidadeContas() + 1);
+//        repo.saveAndFlush(gerenteComMenosContas);
 
         GerenteAssignmentDTO assignmentDTO = new GerenteAssignmentDTO(gerenteComMenosContas.getId(), numeroConta);
-        messagingService.sendMessage(QueueConstants.ASSIGN_MANAGER_ACCOUNT_COMPLETED, assignmentDTO);
+//        messagingService.sendMessage(QueueConstants.ASSIGN_MANAGER_ACCOUNT_COMPLETED, assignmentDTO);
 
     }
 

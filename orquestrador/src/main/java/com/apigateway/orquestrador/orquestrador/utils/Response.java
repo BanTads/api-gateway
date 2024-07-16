@@ -1,12 +1,16 @@
-package com.apigateway.cliente.cliente.utils;
+package com.apigateway.orquestrador.orquestrador.utils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
     private Boolean success;
     private Integer code; // Changed to Integer to allow null values
     private String message;
     private Object data;
 
-    // Constructor with all parameters
+    public Response() {}
     public Response(Boolean success, String message, Object data, Integer code) {
         this.success = success;
         this.message = message;
