@@ -1,5 +1,8 @@
 package com.apigateway.cliente.cliente.utils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
     private Boolean success;
     private Integer code; // Changed to Integer to allow null values

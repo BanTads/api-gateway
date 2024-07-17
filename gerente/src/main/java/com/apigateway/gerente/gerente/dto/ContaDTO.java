@@ -1,9 +1,10 @@
-package com.apigateway.conta.conta.dto;
+package com.apigateway.gerente.gerente.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import java.util.Date;
+
 import java.io.Serializable;
+import java.util.Date;
 
 @Getter
 @Setter

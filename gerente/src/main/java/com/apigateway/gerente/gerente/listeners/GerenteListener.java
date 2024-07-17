@@ -2,13 +2,17 @@ package com.apigateway.gerente.gerente.listeners;
 
 import com.apigateway.gerente.gerente.constants.QueueConstants;
 import com.apigateway.gerente.gerente.dto.GerenteAssignmentDTO;
+import com.apigateway.gerente.gerente.dto.GerenteDTO;
 import com.apigateway.gerente.gerente.dto.GerenteReassignmentDTO;
+import com.apigateway.gerente.gerente.helpers.GerenteHelper;
 import com.apigateway.gerente.gerente.model.Gerente;
 import com.apigateway.gerente.gerente.repositories.GerenteRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.modelmapper.ModelMapper;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import com.apigateway.gerente.gerente.services.MessagingService;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,29 +31,27 @@ public class GerenteListener {
     private ModelMapper mapper;
     @Autowired
     private GerenteRepository repo;
+    @Autowired
+    private GerenteHelper helper;
+    private final ObjectMapper objectMapper;
+    @Autowired
+    public GerenteListener(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
-    @RabbitListener(queues = QueueConstants.ASSIGN_MANAGER_TO_ACCOUNT)
+    @RabbitListener(queues = QueueConstants.MANAGER_MIN_ACCOUNT)
     @Transactional(rollbackFor = Exception.class)
-    public void assignManagerToAccount(Long numeroConta) {
-        List<Gerente> gerentes = repo.findAll();
-        if (gerentes.isEmpty()) {
-            return;
+    public String getGerenteMinAccount() {
+        try {
+            ResponseEntity<Object> responseEntity = helper.getManagerMinAccount();
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in getGerenteInsert", e);
         }
-
-        Gerente gerenteComMenosContas = gerentes.stream()
-                .min(Comparator.comparingInt(Gerente::getQuantidadeContas))
-                .orElse(null);
-
-        if (gerenteComMenosContas == null) {
-            return;
-        }
-
-//        gerenteComMenosContas.setQuantidadeContas(gerenteComMenosContas.getQuantidadeContas() + 1);
-//        repo.saveAndFlush(gerenteComMenosContas);
-
-        GerenteAssignmentDTO assignmentDTO = new GerenteAssignmentDTO(gerenteComMenosContas.getId(), numeroConta);
-//        messagingService.sendMessage(QueueConstants.ASSIGN_MANAGER_ACCOUNT_COMPLETED, assignmentDTO);
-
     }
 
     @RabbitListener(queues = QueueConstants.REMOVE_MANAGER)
@@ -64,6 +66,22 @@ public class GerenteListener {
             messagingService.sendMessage(QueueConstants.MANAGER_REMOVED, gerenteToRemove.getEmail());
         } else {
             System.err.println("Gerente com ID " + gerenteId + " não encontrado.");
+        }
+    }
+
+    @RabbitListener(queues = "manager.add.one")
+    @Transactional(rollbackFor = Exception.class)
+    public String managerAddOne(String message) {
+        try {
+            GerenteDTO gerenteDTO = objectMapper.readValue(message, GerenteDTO.class);
+            ResponseEntity<Object> responseEntity = helper.addOneClienteToGerente(gerenteDTO);
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in getGerenteInsert", e);
         }
     }
 

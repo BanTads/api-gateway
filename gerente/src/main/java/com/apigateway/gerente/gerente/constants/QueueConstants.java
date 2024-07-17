@@ -13,6 +13,8 @@ public class QueueConstants {
 
     // Gerente-related queues
     public static final String ASSIGN_MANAGER_TO_ACCOUNT = "account.assign.manager";
+    public static final String MANAGER_MIN_ACCOUNT = "manager.min.account";
+
     public static final String ASSIGN_MANAGER_ACCOUNT_COMPLETED = "account.assign.manager.completed";
     public static final String REMOVE_MANAGER = "manager.remove";
 

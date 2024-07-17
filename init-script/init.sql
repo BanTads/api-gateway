@@ -35,7 +35,7 @@ CREATE TABLE public.contas (
     id_gerente INT
 );
 
-CREATE TYPE public.tipo_movimentacao AS ENUM ('depósito', 'saque', 'transferência');
+CREATE TYPE public.tipo_movimentacao AS ENUM ('DEPOSITO', 'SAQUE', 'TRANSFERENCIA');
 
 CREATE TABLE public.movimentacao (
     id SERIAL PRIMARY KEY,

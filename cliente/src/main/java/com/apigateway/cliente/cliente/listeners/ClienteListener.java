@@ -37,6 +37,23 @@ public class ClienteListener {
         this.objectMapper = objectMapper;
     }
 
+    @RabbitListener(queues = "client.get.info")
+    public String getClientInfo(Long idCliente) {
+        try {
+            Cliente cliente = repo.findById(idCliente).orElse(null);
+            if (cliente == null) {
+                System.out.println("Cliente não encontrado para ID: " + idCliente);
+                return null;
+            }
+            Gson gson = new Gson();
+            String clienteJson = gson.toJson(cliente);
+            System.out.println("Cliente processado: " + clienteJson);
+            return clienteJson;
+        } catch (Exception e) {
+            System.out.println("Erro ao processar informações da conta: " + e.getMessage());
+            return "error";
+        }
+    }
     @RabbitListener(queues = "client.insert")
     public String processClientInsert(String message) {
         try {
@@ -53,5 +70,19 @@ public class ClienteListener {
         }
     }
 
-
+    @RabbitListener(queues = "client.remove")
+    public String processClientRemove(String message) {
+        try {
+            ClienteDTO clienteDTO = objectMapper.readValue(message, ClienteDTO.class);
+            System.out.println("Received message: " + clienteDTO);
+            ResponseEntity<Object> responseEntity = helper.deleteCliente(clienteDTO);
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in processClientInsert", e);
+        }
+    }
 }

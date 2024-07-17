@@ -2,8 +2,11 @@ package com.apigateway.orquestrador.orquestrador.controller;
 
 import com.apigateway.orquestrador.orquestrador.constants.QueueConstants;
 import com.apigateway.orquestrador.orquestrador.dto.ClienteDTO;
+import com.apigateway.orquestrador.orquestrador.dto.ContaDTO;
+import com.apigateway.orquestrador.orquestrador.dto.GerenteDTO;
 import com.apigateway.orquestrador.orquestrador.services.MessagingService;
 import com.apigateway.orquestrador.orquestrador.utils.Response;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,7 +31,8 @@ import org.springframework.web.bind.annotation.*;
 public class OrquestradorController {
     @Autowired
     private MessagingService messagingService;
-
+    @Autowired
+    private ObjectMapper objectMapper;
     @PostMapping("autocadastro")
     @Operation(
             summary = "Endpoint para autocadastro de cliente",
@@ -37,23 +41,53 @@ public class OrquestradorController {
     @ApiResponse(responseCode = "403", description = "CPF ou E-mail duplicado", content = @Content(schema = @Schema(implementation = Response.class)))
     public ResponseEntity<Object> inserir(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Request ilustrativa") @RequestBody ClienteDTO clienteDTO) {
         try {
+            GerenteDTO gerenteDTO = new GerenteDTO();
+            //gerente com menos contas
+            Response responseManager = (Response) messagingService.sendAndReceiveMessage(QueueConstants.MANAGER_MIN_ACCOUNT, clienteDTO);
+            System.out.println("oioi");
+            System.out.println(responseManager);
+            //retornando erro caso exista algum para cliente
+            if (!responseManager.getSuccess()) {
+                return new ResponseEntity<>(new Response(false, responseManager.getMessage(), null), HttpStatus.valueOf(responseManager.getCode()));
+            }
+
+            if(responseManager.getData() != null){
+                gerenteDTO = objectMapper.convertValue(responseManager.getData(), GerenteDTO.class);
+            }
+
             Response response = (Response) messagingService.sendAndReceiveMessage(QueueConstants.CLIENT_INSERT, clienteDTO);
-            System.out.println(response.getSuccess());
-            //adicionando cliente
+            //retornando erro caso exista algum para gerente
             if (!response.getSuccess()) {
                 return new ResponseEntity<>(new Response(false, response.getMessage(), null), HttpStatus.valueOf(response.getCode()));
             }
 
-            Response responseConta = (Response) messagingService.sendAndReceiveMessage(QueueConstants.CREATE_CLIENT_ACCOUNT, clienteDTO);
-            System.out.println(responseConta);
+            if(response.getData() != null){
+                clienteDTO = objectMapper.convertValue(response.getData(), ClienteDTO.class);
+            }
 
+            ContaDTO contaDTO = new ContaDTO();
+            contaDTO.setIdGerente(gerenteDTO.getId());
+            contaDTO.setIdCliente(clienteDTO.getId());
+            if (clienteDTO.getSalario() >= 2000.0) {
+                contaDTO.setLimite(clienteDTO.getSalario() / 2);
+            } else {
+                contaDTO.setLimite(0.0);
+            }
+            Response responseConta = (Response) messagingService.sendAndReceiveMessage(QueueConstants.CREATE_CLIENT_ACCOUNT, contaDTO);
+            if (!responseConta.getSuccess()) {
+                Response responseClienteRemove = (Response) messagingService.sendAndReceiveMessage(QueueConstants.CLIENT_REMOVE, clienteDTO);
+                return new ResponseEntity<>(new Response(false, responseConta.getMessage(), null), HttpStatus.valueOf(responseConta.getCode()));
+            }else{
+                Response responseAddOneToManager = (Response) messagingService.sendAndReceiveMessage(QueueConstants.MANAGER_ADD_ONE, gerenteDTO);
+                if (!responseAddOneToManager.getSuccess()) {
+                    Response responseClienteRemove = (Response) messagingService.sendAndReceiveMessage(QueueConstants.CLIENT_REMOVE, clienteDTO);
+                    return new ResponseEntity<>(new Response(false, responseAddOneToManager.getMessage(), null), HttpStatus.valueOf(responseAddOneToManager.getCode()));
+                }
+            }
             return new ResponseEntity<>(new Response(true, response.getMessage(), response.getData()), HttpStatus.valueOf(response.getCode()));
-        } catch (DataIntegrityViolationException e) {
-            String mensagemErro = "Um registro com o mesmo CPF ou e-mail já existe.";
-            return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.CONFLICT);
         } catch (Exception e) {
             String mensagemErro = e.getMessage();
-            return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new Response(false, "Erro interno ao criar cliente", null), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

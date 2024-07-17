@@ -40,4 +40,18 @@ public class ClienteHelper {
             return new ResponseEntity<>(new Response(false, mensagemErro, null, HttpStatus.CONFLICT.value()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public ResponseEntity<Object> deleteCliente(ClienteDTO clienteDTO){
+        try {
+            Cliente clienteToRemove = repo.findById(clienteDTO.getId()).orElse(null);
+            if (clienteToRemove == null) {
+                return new ResponseEntity<>(new Response(false, "Cliente não encontrado", null), HttpStatus.NOT_FOUND);
+            }
+            repo.deleteById(clienteDTO.getId());
+            return new ResponseEntity<>(new Response(true, "Cliente removido com sucesso", null,  HttpStatus.OK.value()), HttpStatus.OK);
+        } catch (Exception e) {
+            String mensagemErro = e.getMessage();
+            return new ResponseEntity<>(new Response(false, mensagemErro, null, HttpStatus.CONFLICT.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

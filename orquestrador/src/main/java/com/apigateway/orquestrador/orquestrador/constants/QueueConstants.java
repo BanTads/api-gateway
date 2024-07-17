@@ -13,6 +13,8 @@ public class QueueConstants {
 
     // Gerente-related queues
     public static final String ASSIGN_MANAGER_TO_ACCOUNT = "account.assign.manager";
+    public static final String MANAGER_MIN_ACCOUNT = "manager.min.account";
+    public static final String MANAGER_ADD_ONE = "manager.add.one";
     public static final String REASSIGN_MANAGER = "reassign.manager";
     public static final String REASSIGN_MANAGER_TO_ACCOUNT = "account.reassign.manager";
     public static final String REASSIGN_MANAGER_ACCOUNT_COMPLETED = "account.reassign.manager.completed";
@@ -35,8 +37,10 @@ public class QueueConstants {
     // Microservices get infos
     public static final String GET_ClIENT_INFO = "client.get.info";
     public static final String GET_CONTA_INFO = "conta.get.info";
+    public static final String GET_CONTA_INFO_GERENTE = "conta.get.info.gerente";
     public static final String GET_GERENTE_INFO = "gerente.get.info";
     public static final String CLIENT_INSERT = "client.insert";
+    public static final String CLIENT_REMOVE = "client.remove";
 
     // Array of all queues for convenience
     public static final String[] ALL_QUEUES = {
@@ -45,6 +49,6 @@ public class QueueConstants {
             ASSIGN_MANAGER_TO_ACCOUNT, REASSIGN_MANAGER_TO_ACCOUNT, REASSIGN_MANAGER, MANAGER_ASSIGNED, MANAGER_CREATED, MANAGER_EDITED,
             MANAGER_REMOVED, CREATE_MANAGER_USER, UPDATE_MANAGER_USER, REMOVE_MANAGER_USER, REASSIGN_MANAGER_ACCOUNT_COMPLETED,
             UPDATE_MANAGER_ACCOUNT_BALANCE, ASSIGN_MANAGER_ACCOUNT_READ, ACCOUNT_TRANSACTION_COMPLETED, REMOVE_MANAGER, ASSIGN_MANAGER_ACCOUNT_COMPLETED,
-            ACCOUNT_BALANCE_UPDATED, GET_ClIENT_INFO, GET_CONTA_INFO, GET_GERENTE_INFO, CLIENT_INSERT
+            ACCOUNT_BALANCE_UPDATED, GET_ClIENT_INFO, GET_CONTA_INFO, GET_GERENTE_INFO, CLIENT_INSERT, MANAGER_MIN_ACCOUNT, CLIENT_REMOVE, MANAGER_ADD_ONE, GET_CONTA_INFO_GERENTE
     };
 }

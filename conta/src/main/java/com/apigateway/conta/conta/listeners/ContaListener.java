@@ -5,13 +5,16 @@ import com.apigateway.conta.conta.dto.ClienteDTO;
 import com.apigateway.conta.conta.dto.ContaDTO;
 import com.apigateway.conta.conta.dto.GerenteAssignmentDTO;
 import com.apigateway.conta.conta.dto.GerenteReassignmentDTO;
+import com.apigateway.conta.conta.helpers.ContaHelper;
 import com.apigateway.conta.conta.model.Conta;
 import com.apigateway.conta.conta.repositories.ContaRepository;
 import com.apigateway.conta.conta.services.MessagingService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.modelmapper.ModelMapper;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -27,24 +30,27 @@ public class ContaListener {
     private ContaRepository repo;
     @Autowired
     private ModelMapper mapper;
+    @Autowired
+    private ContaHelper helper;
+    private final ObjectMapper objectMapper;
+    @Autowired
+    public ContaListener(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @RabbitListener(queues = QueueConstants.CREATE_CLIENT_ACCOUNT)
-    public void criarContaHandler(ClienteDTO clienteDTO) {
+    public String criarContaHandler(String message) {
         try {
-            ContaDTO account = new ContaDTO();
-            account.setIdCliente(clienteDTO.getId());
-            account.setAprovada(null);
-            account.setDataCriacao(new Date());
-            if (clienteDTO.getSalario() >= 2000.0) {
-                account.setLimite(clienteDTO.getSalario() / 2);
-            } else {
-                account.setLimite(0.0);
-            }
-
-            Conta contaCriada = repo.saveAndFlush(mapper.map(account, Conta.class));
-            this.messagingService.sendMessage(QueueConstants.ASSIGN_MANAGER_TO_ACCOUNT, contaCriada.getNumeroConta());
-        }catch (Exception e){
-            System.out.println(e);
+            ContaDTO contaDTO = objectMapper.readValue(message, ContaDTO.class);
+            System.out.println("Received message: " + contaDTO);
+            ResponseEntity<Object> responseEntity = helper.saveAccount(contaDTO);
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in createClienteAccount", e);
         }
     }
 
@@ -95,6 +101,24 @@ public class ContaListener {
             return contaJson;
         } catch (Exception e) {
             System.out.println("Erro ao processar informações da conta: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    @RabbitListener(queues = "conta.get.info.gerente")
+    public String contasInfo(Long idGerente) {
+        try {
+            List<Conta> contas = repo.findByIdGerente(idGerente);
+            if (contas == null || contas.isEmpty()) {
+                System.out.println("Conta não encontrada para ID: " + idGerente);
+                return null;
+            }
+
+            String contasJson = objectMapper.writeValueAsString(contas);
+            System.out.println("Contas processadas: " + contasJson);
+            return contasJson;
+        } catch (Exception e) {
+            System.out.println("Erro ao processar informações das contas: " + e.getMessage());
             return "error";
         }
     }

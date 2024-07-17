@@ -1,9 +1,10 @@
-package com.apigateway.conta.conta.dto;
+package com.apigateway.orquestrador.orquestrador.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import java.util.Date;
+
 import java.io.Serializable;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -14,4 +15,5 @@ public class ContaDTO implements Serializable {
     private Date dataCriacao;
     private double limite;
     private Long idGerente;
+    private ClienteDTO cliente; // Adicionar referência ao ClienteDTO
 }
