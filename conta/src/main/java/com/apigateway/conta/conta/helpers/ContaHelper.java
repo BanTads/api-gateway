@@ -1,8 +1,10 @@
 package com.apigateway.conta.conta.helpers;
 
 import com.apigateway.conta.conta.dto.ContaDTO;
+import com.apigateway.conta.conta.dto.SaldoLimiteDTO;
 import com.apigateway.conta.conta.model.Conta;
 import com.apigateway.conta.conta.repositories.ContaRepository;
+import com.apigateway.conta.conta.repositories.MovimentacaoRepository;
 import com.apigateway.conta.conta.utils.Response;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ public class ContaHelper {
     @Autowired
     private ContaRepository repo;
     @Autowired
+    private MovimentacaoRepository repoMovimentacao;
+    @Autowired
     private ModelMapper mapper;
     public ResponseEntity<Object> saveAccount(ContaDTO contaDTO) {
         try {
@@ -32,5 +36,25 @@ public class ContaHelper {
             String mensagemErro = e.getMessage();
             return new ResponseEntity<>(new Response(false, mensagemErro, null, HttpStatus.CONFLICT.value()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public SaldoLimiteDTO calcularSaldoELimite(Long numeroConta) {
+        Conta conta = repo.findById(numeroConta).orElse(null);
+        if (conta == null) {
+            throw new RuntimeException("Conta não encontrada");
+        }
+
+        // Calcular o saldo
+        Double saldo = repoMovimentacao.calcularSaldo(numeroConta);
+        saldo = (saldo != null) ? saldo : 0.00;
+
+        // Recuperar o limite da conta
+        Double limite = conta.getLimite();
+
+        // Calcular o total
+        Double total = saldo + limite;
+
+        // Retornar objeto DTO
+        return new SaldoLimiteDTO(saldo, limite, total);
     }
 }

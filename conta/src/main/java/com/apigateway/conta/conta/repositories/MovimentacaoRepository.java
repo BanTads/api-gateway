@@ -8,6 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 public interface MovimentacaoRepository extends JpaRepository<Movimentacao, Long> {
@@ -20,4 +21,7 @@ public interface MovimentacaoRepository extends JpaRepository<Movimentacao, Long
             "FROM Movimentacao m " +
             "WHERE m.idContaOrigem = :idConta OR m.idContaDestino = :idConta")
     Double calcularSaldo(@Param("idConta") Long idConta);
+
+    @Query("SELECT m FROM Movimentacao m WHERE (m.idContaOrigem = :idConta OR m.idContaDestino = :idConta) AND m.dataHora BETWEEN :dataInicio AND :dataFim ORDER BY m.dataHora ASC")
+    List<Movimentacao> findMovimentacoesByDateRangeAndConta(@Param("idConta") Long idConta, @Param("dataInicio") Date dataInicio, @Param("dataFim") Date dataFim);
 }

@@ -1,10 +1,7 @@
 package com.apigateway.conta.conta.listeners;
 
 import com.apigateway.conta.conta.constants.QueueConstants;
-import com.apigateway.conta.conta.dto.ClienteDTO;
-import com.apigateway.conta.conta.dto.ContaDTO;
-import com.apigateway.conta.conta.dto.GerenteAssignmentDTO;
-import com.apigateway.conta.conta.dto.GerenteReassignmentDTO;
+import com.apigateway.conta.conta.dto.*;
 import com.apigateway.conta.conta.helpers.ContaHelper;
 import com.apigateway.conta.conta.model.Conta;
 import com.apigateway.conta.conta.repositories.ContaRepository;
@@ -99,6 +96,24 @@ public class ContaListener {
             String contaJson = gson.toJson(conta);
             System.out.println("Conta processada: " + contaJson);
             return contaJson;
+        } catch (Exception e) {
+            System.out.println("Erro ao processar informações da conta: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    @RabbitListener(queues = "conta.get.saldo")
+    public String saldoInfo(Long idConta) {
+        try {
+            SaldoLimiteDTO saldoLimiteDTO = helper.calcularSaldoELimite(idConta);
+            if (saldoLimiteDTO == null) {
+                System.out.println("Saldo e limite não pôde ser consultado: " + idConta);
+                return null;
+            }
+            Gson gson = new Gson();
+            String saldoLimite = gson.toJson(saldoLimiteDTO);
+            System.out.println("Conta processada: " + saldoLimite);
+            return saldoLimite;
         } catch (Exception e) {
             System.out.println("Erro ao processar informações da conta: " + e.getMessage());
             return "error";

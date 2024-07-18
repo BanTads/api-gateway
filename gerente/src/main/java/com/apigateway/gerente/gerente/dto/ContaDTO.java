@@ -15,4 +15,5 @@ public class ContaDTO implements Serializable {
     private Date dataCriacao;
     private double limite;
     private Long idGerente;
+    private SaldoLimiteDTO saldo;
 }

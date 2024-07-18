@@ -235,13 +235,13 @@ public class GerenteController {
         }
     }
 
-    @GetMapping("/clientes/{id}")
+    @GetMapping("/clientes/{idGerente}")
     @Operation(summary = "Listagem de todos os clientes")
-    public ResponseEntity<Object> todosClientes(@PathVariable Long id,
+    public ResponseEntity<Object> todosClientes(@PathVariable Long idGerente,
                                                 @RequestParam(required = false) String cpf,
                                                 @RequestParam(required = false) String nome) {
         try {
-            Gerente gerente = repo.findById(id).orElse(null);
+            Gerente gerente = repo.findById(idGerente).orElse(null);
             if (gerente == null) {
                 return new ResponseEntity<>(new Response(false, "Gerente not found", null), HttpStatus.NOT_FOUND);
             }
@@ -255,28 +255,33 @@ public class GerenteController {
 
             // Process each account to fetch client information
             List<ClienteRelatorioDTO> contasClientes = contas.stream().map(conta -> {
-                        ClienteRelatorioDTO clienteRelatorioDTO = new ClienteRelatorioDTO();
-                        String jsonCliente = (String) messagingService.sendAndReceiveMessage("client.get.info", conta.getIdCliente());
-                        ClienteDTO cliente = gson.fromJson(jsonCliente, ClienteDTO.class);
+                ClienteRelatorioDTO clienteRelatorioDTO = new ClienteRelatorioDTO();
+                String jsonCliente = (String) messagingService.sendAndReceiveMessage("client.get.info", conta.getIdCliente());
+                ClienteDTO cliente = gson.fromJson(jsonCliente, ClienteDTO.class);
 
-                        if (cliente != null) {
-                            clienteRelatorioDTO.setId(cliente.getId());
-                            clienteRelatorioDTO.setNome(cliente.getNome());
-                            clienteRelatorioDTO.setEmail(cliente.getEmail());
-                            clienteRelatorioDTO.setSalario(cliente.getSalario());
-                            clienteRelatorioDTO.setCpf(cliente.getCpf());
-                            clienteRelatorioDTO.setTelefone(cliente.getTelefone());
-                            clienteRelatorioDTO.setEndereco(cliente.getEndereco());
-                            clienteRelatorioDTO.setConta(conta);
 
-                            return clienteRelatorioDTO;
-                        } else {
-                            return null;
-                        }
-                    }).filter(clienteRelatorioDTO -> clienteRelatorioDTO != null)
-                    .filter(clienteRelatorioDTO -> (cpf == null || clienteRelatorioDTO.getCpf().contains(cpf)) && (nome == null || clienteRelatorioDTO.getNome().toLowerCase().contains(nome.toLowerCase())))
-                    .sorted((c1, c2) -> c1.getNome().compareToIgnoreCase(c2.getNome()))
-                    .collect(Collectors.toList());
+                //Consultando saldo da conta
+                String jsonSaldo = (String) messagingService.sendAndReceiveMessage("conta.get.saldo", conta.getNumeroConta());
+                SaldoLimiteDTO saldoLimiteDTO = gson.fromJson(jsonSaldo, SaldoLimiteDTO.class);
+                conta.setSaldo(saldoLimiteDTO);
+                if (cliente != null) {
+                    clienteRelatorioDTO.setId(cliente.getId());
+                    clienteRelatorioDTO.setNome(cliente.getNome());
+                    clienteRelatorioDTO.setEmail(cliente.getEmail());
+                    clienteRelatorioDTO.setSalario(cliente.getSalario());
+                    clienteRelatorioDTO.setCpf(cliente.getCpf());
+                    clienteRelatorioDTO.setTelefone(cliente.getTelefone());
+                    clienteRelatorioDTO.setEndereco(cliente.getEndereco());
+                    clienteRelatorioDTO.setConta(conta);
+
+                    return clienteRelatorioDTO;
+                } else {
+                    return null;
+                }
+            }).filter(clienteRelatorioDTO -> clienteRelatorioDTO != null)
+            .filter(clienteRelatorioDTO -> (cpf == null || clienteRelatorioDTO.getCpf().contains(cpf)) && (nome == null || clienteRelatorioDTO.getNome().toLowerCase().contains(nome.toLowerCase())))
+            .sorted((c1, c2) -> c1.getNome().compareToIgnoreCase(c2.getNome()))
+            .collect(Collectors.toList());
 
             return new ResponseEntity<>(new Response(true, "Clientes encontrados", contasClientes), HttpStatus.OK);
         } catch (Exception e) {
