@@ -91,5 +91,24 @@ public class OrquestradorController {
         }
     }
 
+    @PostMapping("gerente/adicionar")
+    @Operation(
+            summary = "Endpoint para cadastro de gerente",
+            description = "Retorna os dados do gerente adicionado"
+    )
+    @ApiResponse(responseCode = "403", description = "CPF ou E-mail duplicado", content = @Content(schema = @Schema(implementation = Response.class)))
+    public ResponseEntity<Object> inserirCliente(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Request ilustrativa") @RequestBody GerenteDTO gerenteDTO) {
+        try {
+            if (gerenteDTO.getNome() == null || gerenteDTO.getEmail() == null || gerenteDTO.getCpf() == null || gerenteDTO.getTelefone() == null) {
+                return new ResponseEntity<>(new Response(false, "Dados do gerente inválidos", null), HttpStatus.BAD_REQUEST);
+            }
+
+            return new ResponseEntity<>(new Response(false, "Erro interno ao criar grente", null), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            String mensagemErro = e.getMessage();
+            return new ResponseEntity<>(new Response(false, "Erro interno ao criar grente", null), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 }
