@@ -5,12 +5,12 @@ springdoc:
     path: "/api-docs"
 spring:
   rabbitmq:
-#    host: host.docker.internal
-    host: 10.110.0.95
+    host: host.docker.internal
+#    host: 10.110.0.95
     port: 5672
     username: guest
     password: guest
   datasource:
     username: postgres
     password: postgres
-    url: jdbc:postgresql://localhost/conta
+    url: jdbc:postgresql://host.docker.internal/conta

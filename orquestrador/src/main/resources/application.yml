@@ -7,8 +7,8 @@ spring:
   application:
     name: orquestrador
   rabbitmq:
-#    host: host.docker.internal
-    host: 10.110.0.95
+    host: host.docker.internal
+#    host: 10.110.0.95
     port: 5672
     username: guest
     password: guest

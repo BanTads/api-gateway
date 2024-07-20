@@ -1,12 +1,12 @@
 version: '3.5'
 services:
-#  cliente:
-#    image: "cliente_image:latest"
-#    depends_on:
-#      - cliente-pg-db
-#    container_name: cliente-container
-#    ports:
-#      - "8081:8008"
+  cliente:
+    image: "cliente_image:latest"
+    depends_on:
+      - cliente-pg-db
+    container_name: cliente-container
+    ports:
+      - "8081:8008"
   cliente-pg-db:
     image: postgres:alpine
     volumes:
@@ -19,9 +19,13 @@ services:
     image: "orquestrador_image:latest"
     ports:
       - 8082:8009
-#  conta:
-#    image: "conta_image:latest"
-#    ports:
-#      - 8083:8010
+  conta:
+    image: "conta_image:latest"
+    ports:
+      - 8083:8010
+  gerente:
+    image: "gerente_image:latest"
+    ports:
+      - 8084:8011
 volumes:
   cliente-db:
