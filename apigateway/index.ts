@@ -7,18 +7,18 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-const authService = "http://auth:port/auth";
-const sagaService = "http://saga:port";
-const clienteService = "http://cliente:port/cliente";
-const gerenteService = "http://gerente:port/gerente";
-const contaService = "http://conta:port/conta";
+const authService = "http://auth:8012/api";
+const clienteService = "http://cliente:8008/api";
+const contaService = "http://conta:8010/api";
+const gerenteService = "http://gerente:8011/api";
+const sagaService = "http://saga:8009";
 
 // ordem: auth, cliente, conta, gerente, saga
 
 app  
 
 // auth registro #R1
-.post("/auth", async (req: any, res: any) => {
+.post("/adicionar", async (req: any, res: any) => {
     try {
       const response = await axios.post(`${authService}`, {
         ...req.body,
@@ -40,7 +40,7 @@ app
       return res.status(error.response.status).json(error.response.data);
     }
 })
-
+/*
 // auth delete
 .delete("/auth/:id", async (req: any, res: any) => {
     try {
@@ -54,7 +54,7 @@ app
 })
 
 // get cliente por id
-.get("/clientes/:id", async (req: any, res: Response) => {
+.get("/cliente/:id", async (req: any, res: Response) => {
     try {
         const response = await axios.get(`${clienteService}/${req.params.id}`);
 
@@ -63,9 +63,9 @@ app
         return res.status(error.response.status).json(error.response.data);
     }
 })
-
+*/
 // get clientes
-.get("/clientes", async (req: any, res: Response) => {
+.get("/cliente/listar", async (req: any, res: Response) => {
     try {
         const response = await axios.get(`${clienteService}`, {
         params: req.query,
@@ -76,8 +76,38 @@ app
     }
 })
 
+// get cliente pelo cpf
+.get("/cliente/cpf/:cpf", async (req: any, res: Response) => {
+    try {
+        const response = await axios.get(
+            `${clienteService}/cpf/${req.params.cpf}`
+        );
+
+        return res.json(response.data);
+    } catch (error: any) {
+        return res
+            .status(error.status ? error.status : 400)
+            .json({ ERROR: error.message });
+    }
+})
+
+//get relatorio de clientes
+.get("/cliente/cpf/:cpf", async (req: any, res: Response) => {
+    try {
+        const response = await axios.get(
+            `${clienteService}/cpf/${req.params.cpf}`
+        );
+
+        return res.json(response.data);
+    } catch (error: any) {
+        return res
+            .status(error.status ? error.status : 400)
+            .json({ ERROR: error.message });
+    }
+})
+/*
 // update cliente
-.put("/clientes/:id", async (req: any, res: any) => {
+.put("/cliente/:id", async (req: any, res: any) => {
     try {
         const response = await axios.put(`${clienteService}/${req.params.id}`, {
         ...req.body,
@@ -89,7 +119,7 @@ app
 })
 
 // delete cliente
-.delete("/clientes/:id", async (req: any, res: Response) => {
+.delete("/cliente/:id", async (req: any, res: Response) => {
     try {
         const response = await axios.delete(`${clienteService}/${req.params.id}`);
 
@@ -98,9 +128,9 @@ app
         return res.status(error.response.status).json(error.response.data);
     }
 })
-
+*/
 // editar conta
-.put("/conta/:id", async (req: any, res: any) => {
+.put("/atualizar/:id", async (req: any, res: any) => {
     try {
       const response = await axios.put(`${contaService}/${req.params.id}`, {
         ...req.body,
@@ -110,7 +140,7 @@ app
       return res.status(error.response.status).json(error.response.data);
     }
 })
-
+/*
 // deletar conta
 .delete("/conta/:id", async (req: any, res: Response) => {
     try {
@@ -163,12 +193,12 @@ app
         return res.status(error.response.status).json(error.response.data);
     }
 })
-
+*/
 // get saldo conta
-.get("/conta/:id/balance", async (req: any, res: Response) => {
+.get("/saldo/:numeroConta", async (req: any, res: Response) => {
     try {
         const response = await axios.get(
-        `${contaService}/${req.params.id}/balance`
+        `${contaService}/${req.params.id}`
         );
 
         return res.json(response.data);
@@ -177,12 +207,11 @@ app
     }
 })
 
-
-// deposito #R5
-.post("/conta/:id/deposit", async (req: any, res: any) => {
+// deposito, saque e transferencia #R5, R6 & R7
+.get("/transacao", async (req: any, res: any) => {
     try {
-        const response = await axios.post(
-        `${contaService}/${req.params.id}/deposit`,
+        const response = await axios.get(
+        `${contaService}`,
         {
             ...req.body,
         }
@@ -193,36 +222,31 @@ app
     }
 })
 
-// saque #R6
-.post("/conta/:id/withdraw", async (req: any, res: any) => {
+// get top 3 
+.get("/top3/:idGerente", async (req: any, res: any) => {
     try {
-        const response = await axios.post(
-        `${contaService}/${req.params.id}/withdraw`,
-        {
-            ...req.body,
-        }
-        );
+        const response = await axios.get(
+        `${contaService}/${req.params.idGerente}`);
         return res.json(response.data);
     } catch (error: any) {
         return res.status(error.response.status).json(error.response.data);
     }
 })
 
-// transferencia #R7
-.post("/conta/:id/transfer", async (req: any, res: any) => {
+// get extrato
+.get("/extrato", async (req: any, res: Response) => {
     try {
-        const response = await axios.post(
-        `${contaService}/${req.params.id}/transfer`,
-        {
-            ...req.body,
-        }
+        const response = await axios.get(
+        `${contaService}/${req.params.id}`
         );
+
         return res.json(response.data);
     } catch (error: any) {
         return res.status(error.response.status).json(error.response.data);
     }
 })
 
+/*
 // get user da conta por id
 .get("/conta/user/:id", async (req: any, res: any) => {
     try {
@@ -246,11 +270,23 @@ app
         return res.status(error.response.status).json(error.response.data);
     }
 })
+*/
+
+.post("/adicionar", async (req: any, res: any) => {
+    try {
+      const response = await axios.post(`${gerenteService}/adicionar`, {
+        ...req.body,
+      });
+      return res.json(response.data);
+    } catch (error: any) {
+      return res.status(error.response.status).json(error.response.data);
+    }
+}) 
 
 // get gerentes #R19
-.get("/gerente", async (req: any, res: Response) => {
+.get("/listar", async (req: any, res: Response) => {
     try {
-      const response = await axios.get(`${gerenteService}`);
+      const response = await axios.get(`${gerenteService}/listar`);
       return res.json(response.data);
     } catch (error: any) {
       return res.status(error.response.status).json(error.response.data);
@@ -258,9 +294,9 @@ app
 })
 
 // get gerente por id
-.get("/gerente/:id", async (req: any, res: Response) => {
+.get("/listar/:id", async (req: any, res: Response) => {
     try {
-      const response = await axios.get(`${gerenteService}/${req.params.id}`);
+      const response = await axios.get(`${gerenteService}/listar/${req.params.id}`);
 
       return res.json(response.data);
     } catch (error: any) {
@@ -269,9 +305,9 @@ app
 })
 
 // editar gerente #R20
-.put("/gerente/:id", async (req: any, res: any) => {
+.put("/atualizar/:id", async (req: any, res: any) => {
     try {
-      const response = await axios.put(`${gerenteService}/${req.params.id}`, {
+      const response = await axios.put(`${gerenteService}/atualizar/${req.params.id}`, {
         ...req.body,
       });
       return res.json(response.data);
@@ -281,9 +317,9 @@ app
 })
 
 // deletar gerente #R18
-.delete("/gerente/:id", async (req: any, res: any) => {
+.delete("/remover/:id", async (req: any, res: any) => {
     try {
-      const response = await axios.delete(`${gerenteService}/${req.params.id}`, {
+      const response = await axios.delete(`${gerenteService}/remover/${req.params.id}`, {
           ...req.body,
         }
       );
@@ -293,22 +329,72 @@ app
     }
 })
 
-// saga cliente - create
-.post("/clientes", async (req: any, res: any) => {
+// get gerente por email
+.get("/listar/email/:email", async (req: any, res: Response) => {
     try {
-        const response = await axios.post(`${sagaService}/cliente`, {
+      const response = await axios.get(`${gerenteService}/email/${req.params.email}`);
+
+      return res.json(response.data);
+    } catch (error: any) {
+      return res.status(error.response.status).json(error.response.data);
+    }
+})
+
+// get lista de cliente pendente para aprov.
+.get("/pendente-aprovacao/:id", async (req: any, res: Response) => {
+    try {
+      const response = await axios.get(`${gerenteService}/pendente-aprovacao/${req.params.id}`);
+
+      return res.json(response.data);
+    } catch (error: any) {
+      return res.status(error.response.status).json(error.response.data);
+    }
+})
+
+// get listagem de todos os clientes
+.get("/clientes/:idGerente", async (req: any, res: Response) => {
+    try {
+      const response = await axios.get(`${gerenteService}/clientes/${req.params.idGerente}`);
+      return res.json(response.data);
+    } catch (error: any) {
+      return res.status(error.response.status).json(error.response.data);
+    }
+})
+
+// saga autocadastro
+.post("/autocadastro", async (req: any, res: any) => {
+    try {
+        const response = await axios.post(`${sagaService}/autocadastro`, {
         ...req.body,
         });
         return res.json(response.data);
     } catch (error: any) {
         return res.status(error.response.status).json(error.response.data);
+    }
+})
+
+// saga atualiza cliente existente pelo id
+.put("/cliente/atualizar/:id", async (req: any, res: Response) => {
+    try {
+        const response = await axios.put(
+            `${sagaService}/cliente/atualizar/${req.params.id}`,
+            {
+                ...req.body,
+            }
+        );
+
+        return res.json(response.data);
+    } catch (error: any) {
+        return res
+            .status(error.status ? error.status : 400)
+            .json({ ERROR: error.message });
     }
 })
 
 // saga gerente - create #R17
-.post("/gerente", async (req: any, res: any) => {
+.post("/gerente/adicionar", async (req: any, res: any) => {
     try {
-        const response = await axios.post(`${sagaService}/gerente`, {
+        const response = await axios.post(`${sagaService}/adicionar`, {
         ...req.body,
         });
         return res.json(response.data);
@@ -317,6 +403,38 @@ app
     }
 })
 
+// saga atualizar gerente por id
+.put("/gerente/atualizar/:id", async (req: any, res: Response) => {
+    try {
+        const response = await axios.put(
+            `${sagaService}/gerente/atualizar/${req.params.id}`,
+            {
+                ...req.body,
+            }
+        );
+
+        return res.json(response.data);
+    } catch (error: any) {
+        return res
+            .status(error.status ? error.status : 400)
+            .json({ ERROR: error.message });
+    }
+})
+
+// saga deletar gerente por id
+.delete("/gerente/:id", async (req: any, res: any) => {
+    try {
+        const response = await axios.delete(
+            `${sagaService}/gerente/${req.params.id}`
+        );
+        return res.json(response.data);
+    } catch (error: any) {
+        return res
+            .status(error.status ? error.status : 400)
+            .json({ ERROR: error.message });
+    }
+})
+/*
 // saga conta - create
 .post("/contas", async (req: any, res: any) => {
     try {
@@ -328,7 +446,7 @@ app
         return res.status(error.response.status).json(error.response.data);
     }
 })
-
+*/
   //api port
   app.listen(port, () => {
     return console.log(`Express is listening at http://localhost:${port}`);
