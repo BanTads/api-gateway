@@ -19,9 +19,21 @@ services:
     image: "orquestrador_image:latest"
     ports:
       - 8082:8009
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongo-data:/data/db
+      - ./init-script/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
 #  conta:
 #    image: "conta_image:latest"
 #    ports:
 #      - 8083:8010
 volumes:
   cliente-db:
+  mongo-db:
+  mongo-data:

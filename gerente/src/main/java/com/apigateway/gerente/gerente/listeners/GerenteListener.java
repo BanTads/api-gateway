@@ -38,6 +38,66 @@ public class GerenteListener {
     public GerenteListener(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
+    @RabbitListener(queues = QueueConstants.MANAGER_INSERT)
+    public String processManagerInsert(String message) {
+        try {
+            GerenteDTO gerenteDTO = objectMapper.readValue(message, GerenteDTO.class);
+            System.out.println("Received message: " + gerenteDTO);
+            ResponseEntity<Object> responseEntity = helper.saveManager(gerenteDTO);
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in processManagerInsert", e);
+        }
+    }
+    @RabbitListener(queues = QueueConstants.VERIFY_AND_FIND_NEW_MANAGER)
+    public String processNewManagerFind(String message) {
+        try {
+            GerenteDTO gerenteDTO = objectMapper.readValue(message, GerenteDTO.class);
+            System.out.println("Received message: " + gerenteDTO);
+            ResponseEntity<Object> responseEntity = helper.verifyAndFindNewManager(gerenteDTO);
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in processNewManagerFind", e);
+        }
+    }
+    @RabbitListener(queues = QueueConstants.MANAGER_UPDATE)
+    public String processManagerUpdate(String message) {
+        try {
+            GerenteDTO gerenteDTO = objectMapper.readValue(message, GerenteDTO.class);
+            System.out.println("Received message: " + gerenteDTO);
+            ResponseEntity<Object> responseEntity = helper.updateManager(gerenteDTO);
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in processManagerInsert", e);
+        }
+    }
+    @RabbitListener(queues = QueueConstants.REMOVE_MANAGER)
+    public String processManagerRemove(String message) {
+        try {
+            GerenteDTO gerenteDTO = objectMapper.readValue(message, GerenteDTO.class);
+            System.out.println("Received message: " + gerenteDTO);
+            ResponseEntity<Object> responseEntity = helper.removeManager(gerenteDTO);
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in removeManager", e);
+        }
+    }
 
     @RabbitListener(queues = QueueConstants.MANAGER_MIN_ACCOUNT)
     @Transactional(rollbackFor = Exception.class)
@@ -54,21 +114,20 @@ public class GerenteListener {
         }
     }
 
-    @RabbitListener(queues = QueueConstants.REMOVE_MANAGER)
+    @RabbitListener(queues = QueueConstants.MANAGER_MAX_ACCOUNT)
     @Transactional(rollbackFor = Exception.class)
-    public void removeManager(GerenteReassignmentDTO message) {
-        Long gerenteId = message.getOldGerenteId();
-        Optional<Gerente> gerenteOpt = repo.findById(gerenteId);
-        if (gerenteOpt.isPresent()) {
-            Gerente gerenteToRemove = gerenteOpt.get();
-
-            repo.deleteById(gerenteId);
-            messagingService.sendMessage(QueueConstants.MANAGER_REMOVED, gerenteToRemove.getEmail());
-        } else {
-            System.err.println("Gerente com ID " + gerenteId + " não encontrado.");
+    public String getGerenteMaxAccount() {
+        try {
+            ResponseEntity<Object> responseEntity = helper.getManagerMaxAccount();
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in getGerenteInsert", e);
         }
     }
-
     @RabbitListener(queues = "manager.add.one")
     @Transactional(rollbackFor = Exception.class)
     public String managerAddOne(String message) {
@@ -85,6 +144,21 @@ public class GerenteListener {
         }
     }
 
+    @RabbitListener(queues = "manager.remove.one")
+    @Transactional(rollbackFor = Exception.class)
+    public String managerRemoveOne(String message) {
+        try {
+            GerenteDTO gerenteDTO = objectMapper.readValue(message, GerenteDTO.class);
+            ResponseEntity<Object> responseEntity = helper.removeOneFromManager(gerenteDTO);
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in getGerenteInsert", e);
+        }
+    }
     @RabbitListener(queues = "gerente.get.info")
     public String gerenteInfo(Long idGerente) {
         try {

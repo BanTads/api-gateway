@@ -51,24 +51,35 @@ public class ContaListener {
         }
     }
 
+    @RabbitListener(queues = QueueConstants.CONTA_UPDATE_LIMIT)
+    public String contaUpdateLimit(String message) {
+        try {
+            ContaDTO contaDTO = objectMapper.readValue(message, ContaDTO.class);
+            System.out.println("Received message: " + contaDTO);
+            ResponseEntity<Object> responseEntity = helper.updateLimit(contaDTO);
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in createClienteAccount", e);
+        }
+    }
+
     @RabbitListener(queues = QueueConstants.REASSIGN_MANAGER_TO_ACCOUNT)
-    public void reassignGerente(GerenteReassignmentDTO message) {
-        List<Conta> contas = repo.findByIdGerente(message.getOldGerenteId());
-        if (message.getGerenteCriado()) {
-            // Atribuir apenas uma conta aleatória ao novo gerente
-            if (!contas.isEmpty()) {
-                Random random = new Random();
-                Conta contaSelecionada = contas.get(random.nextInt(contas.size()));
-                contaSelecionada.setIdGerente(message.getNewGerenteId());
-                repo.save(contaSelecionada);
-            }
-        } else {
-            // Atribuir todas as contas ao novo gerente
-            for (Conta conta : contas) {
-                conta.setIdGerente(message.getNewGerenteId());
-                repo.save(conta);
-            }
-            this.messagingService.sendMessage(QueueConstants.REASSIGN_MANAGER_ACCOUNT_COMPLETED, message);
+    public String reassignGerente(String message) {
+        try {
+            GerenteReassignmentDTO reassignmentDTO = objectMapper.readValue(message, GerenteReassignmentDTO.class);
+            System.out.println("Received message: " + reassignmentDTO);
+            ResponseEntity<Object> responseEntity = helper.reassignAccount(reassignmentDTO);
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in reassignManagerToAccount", e);
         }
     }
 

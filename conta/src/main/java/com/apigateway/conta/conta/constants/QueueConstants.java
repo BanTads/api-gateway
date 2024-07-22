@@ -10,6 +10,7 @@ public class QueueConstants {
     public static final String CREATE_CLIENT_USER = "user.create.client";
     public static final String CLIENT_ACCOUNT_READ_CREATED = "account.read.created.client";
     public static final String CLIENT_ACCOUNT_READ_APPROVED = "account.read.approved.client";
+    public static final String CONTA_UPDATE_LIMIT = "conta.update.limit";
 
     // Gerente-related queues
     public static final String ASSIGN_MANAGER_TO_ACCOUNT = "account.assign.manager";

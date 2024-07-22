@@ -7,6 +7,7 @@ import com.apigateway.conta.conta.model.Movimentacao;
 import com.apigateway.conta.conta.repositories.ContaRepository;
 import com.apigateway.conta.conta.repositories.MovimentacaoRepository;
 import com.apigateway.conta.conta.services.MessagingService;
+import com.apigateway.conta.conta.utils.EmailService;
 import com.apigateway.conta.conta.utils.Response;
 import com.google.gson.Gson;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
+import org.apache.catalina.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -48,6 +50,8 @@ public class ContaController {
     @Autowired
     private ContaHelper contaHelper;
     @Autowired
+    private EmailService emailService;
+    @Autowired
     private Gson gson; // Reutilizando a instância Gson
     @PutMapping("/atualizar/{numeroConta}")
     @Operation(summary = "Atualiza uma conta pelo id")
@@ -62,7 +66,29 @@ public class ContaController {
                 return new ResponseEntity<>(new Response(false, "ID da conta não pode ser alterado", null), HttpStatus.BAD_REQUEST);
             }
 
-            contaExistente.setLimite(contaDTO.getLimite());
+            String jsonCliente = (String) messagingService.sendAndReceiveMessage("client.get.info", contaExistente.getIdCliente());
+            ClienteDTO cliente = gson.fromJson(jsonCliente, ClienteDTO.class);
+
+            if (contaDTO.getAprovada() != null && contaDTO.getAprovada() && (contaExistente.getAprovada() == null || !contaExistente.getAprovada())) {  //se a conta for aprovada
+                UserDTO userDTO = new UserDTO();
+                userDTO.setEmail(cliente.getEmail());
+                userDTO.setNome(cliente.getNome());
+                userDTO.setCargo("CLIENTE");
+
+                Response responseUsuarioCriado = (Response) messagingService.sendAndReceiveMessageObj("user.insert",  userDTO);
+                System.out.println(responseUsuarioCriado);
+                if (!responseUsuarioCriado.getSuccess() && responseUsuarioCriado.getCode() != 404)
+                    return new ResponseEntity<>(new Response(false, "Erro ao criar usuário: " + responseUsuarioCriado.getMessage(), null), HttpStatus.valueOf(responseUsuarioCriado.getCode()));
+            }
+
+            if(contaDTO.getAprovada() != null && !contaDTO.getAprovada() && contaExistente.getAprovada() == null){ //se a conta for reprovada
+                if(contaDTO.getMotivo() == null){
+                    return new ResponseEntity<>(new Response(false, "Motivo não pode ser vazio", null), HttpStatus.BAD_REQUEST);
+                }
+                emailService.sendEmail(cliente.getEmail(), "Sua conta não foi aprovada", contaDTO.getMotivo(), cliente.getNome());
+            }
+
+            contaExistente.setMotivo(contaDTO.getMotivo());
             contaExistente.setAprovada(contaDTO.getAprovada());
             repo.saveAndFlush(contaExistente);
             return new ResponseEntity<>(new Response(true, "Conta atualizada com sucesso", contaExistente), HttpStatus.OK);

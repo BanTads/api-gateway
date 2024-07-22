@@ -27,17 +27,20 @@ public class Conta implements Serializable {
 
     @Column(name="id_gerente")
     private Long idGerente;
+    @Column(name="motivo")
+    private String motivo;
 
     public Conta() {
         super();
     }
-    public Conta(Long numeroConta, Long idCliente, Boolean aprovada, Date dataCriacao, double limite, Long idGerente) {
+    public Conta(Long numeroConta, Long idCliente, Boolean aprovada, Date dataCriacao, double limite, Long idGerente, String motivo) {
         this.numeroConta = numeroConta;
         this.idCliente = idCliente;
         this.aprovada = aprovada;
         this.dataCriacao = dataCriacao;
         this.limite = limite;
         this.idGerente = idGerente;
+        this.motivo = motivo;
     }
 
     public long getNumeroConta() {
@@ -86,5 +89,13 @@ public class Conta implements Serializable {
 
     public void setIdGerente(Long idGerente) {
         this.idGerente = idGerente;
+    }
+
+    public String getMotivo() {
+        return motivo;
+    }
+
+    public void setMotivo(String motivo) {
+        this.motivo = motivo;
     }
 }

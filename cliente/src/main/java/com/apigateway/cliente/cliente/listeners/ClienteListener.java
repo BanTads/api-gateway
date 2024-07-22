@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import com.google.gson.Gson;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Component
@@ -54,6 +55,23 @@ public class ClienteListener {
             return "error";
         }
     }
+
+    @RabbitListener(queues = "client.check.email")
+    public String checkEmail(String email) {
+        try {
+            Cliente cliente = repo.findByEmail(email);
+            if (cliente == null) {
+                return new ResponseEntity<>(new Response(false, "Cliente não encontrado", null), HttpStatus.NOT_FOUND).toString();
+            }
+            Gson gson = new Gson();
+            String userJson = gson.toJson(cliente);
+            return userJson;
+        } catch (Exception e) {
+            System.out.println("Erro ao processar informações do usuário: " + e.getMessage());
+            return new ResponseEntity<>(new Response(false, "Erro ao processar informações do usuário", null), HttpStatus.INTERNAL_SERVER_ERROR).toString();
+        }
+    }
+
     @RabbitListener(queues = "client.insert")
     public String processClientInsert(String message) {
         try {
@@ -67,6 +85,22 @@ public class ClienteListener {
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error in processClientInsert", e);
+        }
+    }
+
+    @RabbitListener(queues = "client.update")
+    public String processClientUpdate(String message) {
+        try {
+            ClienteDTO clienteDTO = objectMapper.readValue(message, ClienteDTO.class);
+            System.out.println("Received message: " + clienteDTO);
+            ResponseEntity<Object> responseEntity = helper.updateClient(clienteDTO);
+            System.out.println();
+            String responseJson = objectMapper.writeValueAsString(responseEntity.getBody());
+            System.out.println("Sending response: " + responseJson);
+            return responseJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in processClientUpdate", e);
         }
     }
 

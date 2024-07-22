@@ -1,7 +1,6 @@
-package com.apigateway.conta.conta.utils;
+package com.apigateway.auth.auth.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
@@ -10,7 +9,7 @@ public class Response {
     private String message;
     private Object data;
 
-    public Response() {}
+    // Constructor with all parameters
     public Response(Boolean success, String message, Object data, Integer code) {
         this.success = success;
         this.message = message;

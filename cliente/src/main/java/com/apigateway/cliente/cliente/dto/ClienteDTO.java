@@ -15,11 +15,11 @@ public class ClienteDTO {
     private String email;
     private String cpf;
     private String telefone;
-    private Double salario;
+    private Float salario;
     private EnderecoDTO endereco;
 
     public ClienteDTO() {}
-    public ClienteDTO(Long id, String nome, String email, String cpf, String telefone, Double salario, EnderecoDTO endereco) {
+    public ClienteDTO(Long id, String nome, String email, String cpf, String telefone, Float salario, EnderecoDTO endereco) {
         this.id = id;
         this.nome = nome;
         this.email = email;

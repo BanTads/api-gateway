@@ -42,4 +42,8 @@ public class MessagingService {
             throw new RuntimeException("Error in sendAndReceiveMessage", e);
         }
     }
+
+    public Object sendAndReceiveMessageSimple(String queueName, Object message) {
+        return this.template.convertSendAndReceive("", queueName, message);  // "" indica a default exchange
+    }
 }

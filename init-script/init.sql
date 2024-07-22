@@ -31,6 +31,7 @@ CREATE TABLE public.contas (
     aprovada boolean,
     id_cliente INT,
     data_criacao DATE,
+    motivo VARCHAR(255),
     limite DECIMAL(10, 2),
     id_gerente INT
 );
