@@ -3,6 +3,8 @@ package com.apigateway.orquestrador.orquestrador.controller;
 import ch.qos.logback.core.net.server.Client;
 import com.apigateway.orquestrador.orquestrador.constants.QueueConstants;
 import com.apigateway.orquestrador.orquestrador.dto.*;
+import com.apigateway.orquestrador.orquestrador.services.EmailCheckService;
+import com.apigateway.orquestrador.orquestrador.services.EmailService;
 import com.apigateway.orquestrador.orquestrador.services.MessagingService;
 import com.apigateway.orquestrador.orquestrador.utils.Response;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +37,11 @@ public class OrquestradorController {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private Gson gson; // Reutilizando a instância Gson
+    private Gson gson;
+    @Autowired
+    private EmailCheckService emailCheckService;
+    @Autowired
+    private EmailService emailService;
     @PostMapping("autocadastro")
     @Operation(
             summary = "Endpoint para autocadastro de cliente",
@@ -49,7 +55,14 @@ public class OrquestradorController {
             Response responseManager = (Response) messagingService.sendAndReceiveMessage(QueueConstants.MANAGER_MIN_ACCOUNT, clienteDTO);
             //retornando erro caso exista algum para cliente
             if (!responseManager.getSuccess()) {
+                System.out.print("Entrou1");
+                emailService.sendEmail(clienteDTO.getEmail(), "Erro ao realizar cadastro no BANTADS.", clienteDTO.getNome());
                 return new ResponseEntity<>(new Response(false, responseManager.getMessage(), null), HttpStatus.valueOf(responseManager.getCode()));
+            }
+
+            boolean isUniqueManager = emailCheckService.isManagerEmailUnique(clienteDTO.getEmail(), null);
+            if(!isUniqueManager){
+                return new ResponseEntity<>(new Response(false, "Um registro com o mesmo e-mail já existe.", null), HttpStatus.CONFLICT);
             }
 
             if(responseManager.getData() != null){
@@ -59,6 +72,8 @@ public class OrquestradorController {
             Response response = (Response) messagingService.sendAndReceiveMessage(QueueConstants.CLIENT_INSERT, clienteDTO);
             //retornando erro caso exista algum para gerente
             if (!response.getSuccess()) {
+                System.out.print("Entrou2");
+                emailService.sendEmail(clienteDTO.getEmail(), "Erro ao realizar cadastro no BANTADS.", clienteDTO.getNome());
                 return new ResponseEntity<>(new Response(false, response.getMessage(), null), HttpStatus.valueOf(response.getCode()));
             }
 
@@ -76,11 +91,15 @@ public class OrquestradorController {
             }
             Response responseConta = (Response) messagingService.sendAndReceiveMessage(QueueConstants.CREATE_CLIENT_ACCOUNT, contaDTO);
             if (!responseConta.getSuccess()) {
+                System.out.print("Entrou3");
+                emailService.sendEmail(clienteDTO.getEmail(), "Erro ao realizar cadastro no BANTADS.", clienteDTO.getNome());
                 Response responseClienteRemove = (Response) messagingService.sendAndReceiveMessage(QueueConstants.CLIENT_REMOVE, clienteDTO);
                 return new ResponseEntity<>(new Response(false, responseConta.getMessage(), null), HttpStatus.valueOf(responseConta.getCode()));
             }else{
                 Response responseAddOneToManager = (Response) messagingService.sendAndReceiveMessage(QueueConstants.MANAGER_ADD_ONE, gerenteDTO);
                 if (!responseAddOneToManager.getSuccess()) {
+                    System.out.print("Entrou4");
+                    emailService.sendEmail(clienteDTO.getEmail(), "Erro ao realizar cadastro no BANTADS.", clienteDTO.getNome());
                     Response responseClienteRemove = (Response) messagingService.sendAndReceiveMessage(QueueConstants.CLIENT_REMOVE, clienteDTO);
                     return new ResponseEntity<>(new Response(false, responseAddOneToManager.getMessage(), null), HttpStatus.valueOf(responseAddOneToManager.getCode()));
                 }
@@ -106,7 +125,7 @@ public class OrquestradorController {
             String jsonOldCliente = (String) messagingService.sendAndReceiveMessageSimple("client.get.info", id);
             oldClientDTO = gson.fromJson(jsonOldCliente, ClienteDTO.class);
 
-            boolean isUniqueClient = isEmailUnique(clienteDTO.getEmail(), id);
+            boolean isUniqueClient = emailCheckService.isClientEmailUnique(clienteDTO.getEmail(), id);
             if(!isUniqueClient){
                 return new ResponseEntity<>(new Response(false, "Um registro com o mesmo e-mail já existe.", null), HttpStatus.CONFLICT);
             }
@@ -177,6 +196,11 @@ public class OrquestradorController {
                 return new ResponseEntity<>(new Response(false, "Dados do gerente inválidos", null), HttpStatus.BAD_REQUEST);
             }
 
+            boolean isUniqueClient = emailCheckService.isClientEmailUnique(gerenteDTO.getEmail(), null);
+            if(!isUniqueClient){
+                return new ResponseEntity<>(new Response(false, "Um registro com o mesmo e-mail já existe.", null), HttpStatus.CONFLICT);
+            }
+
             GerenteDTO managerMaxAccountDTO = new GerenteDTO();
             Response managerMaxAccount = (Response) messagingService.sendAndReceiveMessage(QueueConstants.MANAGER_MAX_ACCOUNT, gerenteDTO);
 
@@ -242,6 +266,27 @@ public class OrquestradorController {
     @Operation(summary = "Atualiza um gerente existente pelo ID")
     public ResponseEntity<Object> atualizarGerente(@PathVariable Long id, @RequestBody GerenteDTO gerenteDTO) {
         try {
+            boolean isUniqueManager = emailCheckService.isManagerEmailUnique(gerenteDTO.getEmail(), id);
+            if(!isUniqueManager){
+                return new ResponseEntity<>(new Response(false, "Um registro com o mesmo e-mail já existe.", null), HttpStatus.CONFLICT);
+            }
+
+            //atualização de usuário
+            UserChangeDTO userChangeDTO = new UserChangeDTO();
+            GerenteDTO oldManagerDTO = new GerenteDTO();
+            String jsonOldManager = (String) messagingService.sendAndReceiveMessageSimple("gerente.get.info", id);
+            System.out.print(jsonOldManager);
+            oldManagerDTO = gson.fromJson(jsonOldManager, GerenteDTO.class);
+
+            userChangeDTO.setOldEmail(oldManagerDTO.getEmail());
+            userChangeDTO.setNewEmail(gerenteDTO.getEmail());
+            if(!oldManagerDTO.getEmail().equals(gerenteDTO.getEmail())){
+                Response responseUser = (Response) messagingService.sendAndReceiveMessage(QueueConstants.USER_UPDATE, userChangeDTO);
+                if (!responseUser.getSuccess()) {
+                    return new ResponseEntity<>(new Response(false, responseUser.getMessage(), null), HttpStatus.valueOf(responseUser.getCode()));
+                }
+            }
+
             GerenteDTO newGerenteDTO = new GerenteDTO();
             newGerenteDTO.setId(id);
             newGerenteDTO.setEmail(gerenteDTO.getEmail());
@@ -300,16 +345,5 @@ public class OrquestradorController {
         } catch (Exception e) {
             return new ResponseEntity<>(new Response(false, e.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-
-    private boolean isEmailUnique(String email, Long id) {
-        // Verificar se o email já existe na tabela de usuários
-        String jsonUser = (String) messagingService.sendAndReceiveMessageSimple("client.check.email", email);
-        ClienteDTO existingClient = gson.fromJson(jsonUser, ClienteDTO.class);
-        if (existingClient != null && !existingClient.getId().equals(id)) {
-            return false;
-        }
-        return true;
     }
 }

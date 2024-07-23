@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -283,6 +284,49 @@ public class GerenteController {
             .collect(Collectors.toList());
 
             return new ResponseEntity<>(new Response(true, "Clientes encontrados", contasClientes), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new Response(false, e.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/admin/dashboard")
+    @Operation(summary = "Listagem de todos os gerentes com métricas de clientes e saldos")
+    public ResponseEntity<Object> todosGerentesDashboard() {
+        try {
+            List<Gerente> gerentes = repo.findAll();
+            List<GerenteDashboardDTO> gerentesDashboard = new ArrayList<>();
+
+            for (Gerente gerente : gerentes) {
+                GerenteDashboardDTO gerenteDashboardDTO = new GerenteDashboardDTO();
+                gerenteDashboardDTO.setId(gerente.getId());
+                gerenteDashboardDTO.setNome(gerente.getNome());
+
+                String contasJson = (String) messagingService.sendAndReceiveMessage("conta.get.info.gerente", gerente.getId());
+                List<ContaDTO> contas = objectMapper.readValue(contasJson, new TypeReference<List<ContaDTO>>() {});
+
+                double saldoPositivoTotal = 0.0;
+                double saldoNegativoTotal = 0.0;
+
+                for (ContaDTO conta : contas) {
+                    // Consultando saldo da conta
+                    String jsonSaldo = (String) messagingService.sendAndReceiveMessage("conta.get.saldo", conta.getNumeroConta());
+                    SaldoLimiteDTO saldoLimiteDTO = gson.fromJson(jsonSaldo, SaldoLimiteDTO.class);
+                    conta.setSaldo(saldoLimiteDTO);
+
+                    if (saldoLimiteDTO.getSaldo() >= 0) {
+                        saldoPositivoTotal += saldoLimiteDTO.getSaldo();
+                    } else {
+                        saldoNegativoTotal += saldoLimiteDTO.getSaldo();
+                    }
+                }
+
+                gerenteDashboardDTO.setNumeroClientes(contas.size());
+                gerenteDashboardDTO.setSaldoPositivoTotal(saldoPositivoTotal);
+                gerenteDashboardDTO.setSaldoNegativoTotal(saldoNegativoTotal);
+                gerentesDashboard.add(gerenteDashboardDTO);
+            }
+
+            return new ResponseEntity<>(new Response(true, "Gerentes encontrados", gerentesDashboard), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new Response(false, e.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);
         }

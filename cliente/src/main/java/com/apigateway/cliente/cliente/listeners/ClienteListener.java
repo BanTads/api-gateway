@@ -61,14 +61,14 @@ public class ClienteListener {
         try {
             Cliente cliente = repo.findByEmail(email);
             if (cliente == null) {
-                return new ResponseEntity<>(new Response(false, "Cliente não encontrado", null), HttpStatus.NOT_FOUND).toString();
+                return null;
             }
             Gson gson = new Gson();
             String userJson = gson.toJson(cliente);
             return userJson;
         } catch (Exception e) {
-            System.out.println("Erro ao processar informações do usuário: " + e.getMessage());
-            return new ResponseEntity<>(new Response(false, "Erro ao processar informações do usuário", null), HttpStatus.INTERNAL_SERVER_ERROR).toString();
+            System.out.println("Erro ao processar informações do gerente: " + e.getMessage());
+            return "error";
         }
     }
 

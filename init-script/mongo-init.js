@@ -45,6 +45,9 @@ db.createCollection('usuarios', { // Nome da coleção
   },
 });
 
+print("Removendo todos os documentos da coleção 'usuarios'...");
+db.usuarios.deleteMany({});
+
 db.usuarios.insertOne({
   nome: 'Administrador',
   email: 'admin@admin.com',

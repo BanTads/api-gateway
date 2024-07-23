@@ -7,11 +7,13 @@ import com.apigateway.gerente.gerente.dto.GerenteReassignmentDTO;
 import com.apigateway.gerente.gerente.helpers.GerenteHelper;
 import com.apigateway.gerente.gerente.model.Gerente;
 import com.apigateway.gerente.gerente.repositories.GerenteRepository;
+import com.apigateway.gerente.gerente.utils.Response;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.modelmapper.ModelMapper;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import com.apigateway.gerente.gerente.services.MessagingService;
@@ -171,6 +173,22 @@ public class GerenteListener {
             String gerenteJson = gson.toJson(gerente);
             System.out.println("Gerente processado: " + gerenteJson);
             return gerenteJson;
+        } catch (Exception e) {
+            System.out.println("Erro ao processar informações do gerente: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    @RabbitListener(queues = "manager.check.email")
+    public String checkEmail(String email) {
+        try {
+            Gerente gerente = repo.findByEmail(email);
+            if (gerente == null) {
+                return null;
+            }
+            Gson gson = new Gson();
+            String userJson = gson.toJson(gerente);
+            return userJson;
         } catch (Exception e) {
             System.out.println("Erro ao processar informações do gerente: " + e.getMessage());
             return "error";

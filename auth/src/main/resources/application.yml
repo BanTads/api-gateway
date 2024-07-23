@@ -16,11 +16,11 @@ spring:
           starttls:
             enable: true
   rabbitmq:
-    #    host: host.docker.internal
-    host: 10.110.0.95
+    host: host.docker.internal
+#    host: 10.110.0.95
     port: 5672
     username: guest
     password: guest
   data:
     mongodb:
-      uri: mongodb://root:root@localhost:27017/usuario?authSource=admin&authMechanism=SCRAM-SHA-1
+      uri: mongodb://root:root@host.docker.internal/usuario?authSource=admin&authMechanism=SCRAM-SHA-1
