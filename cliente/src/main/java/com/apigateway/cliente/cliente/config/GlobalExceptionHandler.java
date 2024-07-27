@@ -11,6 +11,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<Object> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {
         String errorMessage = "Método não permitido para esta solicitação.";
-        return new ResponseEntity<>(new Response(false, errorMessage, null), HttpStatus.METHOD_NOT_ALLOWED);
+        return new ResponseEntity<>(new Response(false, errorMessage, null, HttpStatus.METHOD_NOT_ALLOWED.value()), HttpStatus.METHOD_NOT_ALLOWED);
     }
 }

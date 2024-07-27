@@ -1,0 +1,26 @@
+server:
+  port: 8012
+springdoc:
+  swagger-ui:
+    path: "/api-docs"
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: bancotads@gmail.com
+    password: ytac ojih mkqx uztb
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  rabbitmq:
+    host: host.docker.internal
+#    host: 10.110.0.95
+    port: 5672
+    username: guest
+    password: guest
+  data:
+    mongodb:
+      uri: mongodb://root:root@host.docker.internal/usuario?authSource=admin&authMechanism=SCRAM-SHA-1

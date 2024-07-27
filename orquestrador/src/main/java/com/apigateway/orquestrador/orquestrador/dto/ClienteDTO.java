@@ -14,4 +14,5 @@ public class ClienteDTO implements Serializable {
     private String telefone;
     private float salario;
     private EnderecoDTO endereco;
+
 }

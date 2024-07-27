@@ -1,13 +1,12 @@
-version: '3'
+version: '3.5'
 services:
-#  cliente:
-#    image: cliente
-#    container_name: cliente_ms
-#    ports:
-#      - "8081:8008"
-#    depends_on:
-#      - cliente-db
-#      - rabbitmq
+  cliente:
+    image: "cliente_image:latest"
+    depends_on:
+      - cliente-pg-db
+    container_name: cliente-container
+    ports:
+      - "8081:8008"
   cliente-pg-db:
     image: postgres:alpine
     volumes:
@@ -16,81 +15,33 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: postgres
-#  mysql-cliente-db:
-#    image: mysql:latest
-#    environment:
-#      MYSQL_ALLOW_EMPTY_PASSWORD: true
-#      MYSQL_DATABASE: cliente
-#    ports:
-#        - "3306:3306"
-#    volumes:
-#      - cliente-db-data:/var/lib/mysql
-
-
-
-
-#  conta:
-#    build:
-#      context: ./conta
-#    ports:
-#      - "8082:8082"
-#    depends_on:
-#      - conta-db
-#      - rabbitmq
-#
-#  conta-db:
-#    image: mysql:latest
-#    environment:
-#      MYSQL_ROOT_PASSWORD: root_password
-#      MYSQL_DATABASE: conta_db
-#    volumes:
-#      - conta-db-data:/var/lib/mysql
-#
-#  gerente:
-#    build:
-#      context: ./gerente
-#    ports:
-#      - "8083:8083"
-#    depends_on:
-#      - gerente-db
-#      - rabbitmq
-#
-#  gerente-db:
-#    image: mysql:latest
-#    environment:
-#      MYSQL_ROOT_PASSWORD: root_password
-#      MYSQL_DATABASE: gerente_db
-#    volumes:
-#      - gerente-db-data:/var/lib/mysql
-#
-#  orquestrador:
-#    build:
-#      context: ./orquestrador
-#    ports:
-#      - "8084:8084"
-#    depends_on:
-#      - orquestrador-db
-#      - rabbitmq
-#
-#  orquestrador-db:
-#    image: mysql:latest
-#    environment:
-#      MYSQL_ROOT_PASSWORD: root_password
-#      MYSQL_DATABASE: orquestrador_db
-#    volumes:
-#      - orquestrador-db-data:/var/lib/mysql
-
-  rabbitmq:
-    image: rabbitmq:management
+  orquestrador:
+    image: "orquestrador_image:latest"
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - 8082:8009
+  auth:
+    image: "auth_image:latest"
+    depends_on:
+      - mongo
+    ports:
+      - "8085:8012"
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - ./init-script/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+  conta:
+    image: "conta_image:latest"
+    ports:
+      - 8083:8010
+  gerente:
+    image: "gerente_image:latest"
+    ports:
+      - 8084:8011
 volumes:
   cliente-db:
-#  conta-db-data:
-#  gerente-db-data:
-#  orquestrador-db-data:
+  mongo-db:
