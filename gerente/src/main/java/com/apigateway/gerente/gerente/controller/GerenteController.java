@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/gerente")
 @Log4j2
+@CrossOrigin
 @Tag(
         name = "API: Gerente",
         description = "Contém todos os endpoints relacionados ao gerente"
