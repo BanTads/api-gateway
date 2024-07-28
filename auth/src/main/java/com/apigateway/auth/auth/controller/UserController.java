@@ -1,12 +1,16 @@
 package com.apigateway.auth.auth.controller;
 
+import com.apigateway.auth.auth.dto.ClienteDTO;
+import com.apigateway.auth.auth.dto.GerenteDTO;
 import com.apigateway.auth.auth.dto.LoginDTO;
 import com.apigateway.auth.auth.dto.UserDTO;
 import com.apigateway.auth.auth.helper.UserHelper;
 import com.apigateway.auth.auth.model.User;
 import com.apigateway.auth.auth.repositories.UserRepository;
+import com.apigateway.auth.auth.services.MessagingService;
 import com.apigateway.auth.auth.utils.Response;
 import com.apigateway.auth.auth.utils.SecurityUtil;
+import com.google.gson.Gson;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -33,6 +37,10 @@ public class UserController {
     private UserRepository repo;
     @Autowired
     private UserHelper helper;
+    @Autowired
+    private MessagingService messagingService;
+    @Autowired
+    private Gson gson;
 
     @PostMapping("login")
     @Operation(
@@ -61,6 +69,16 @@ public class UserController {
                 safeUser.setNome(user.getNome());
                 safeUser.setEmail(user.getEmail());
                 safeUser.setCargo(user.getCargo());
+
+                if(user.getCargo().equals("GERENTE")){
+                    String jsonManager = (String) messagingService.sendAndReceiveMessage("manager.check.email", user.getEmail());
+                    GerenteDTO manager = gson.fromJson(jsonManager, GerenteDTO.class);
+                    safeUser.setGerente(manager);
+                }else if(user.getCargo().equals("CLIENTE")){
+                    String jsonCliente = (String) messagingService.sendAndReceiveMessage("client.check.email", user.getEmail());
+                    ClienteDTO cliente = gson.fromJson(jsonCliente, ClienteDTO.class);
+                    safeUser.setCliente(cliente);
+                }
                 return new ResponseEntity<>(new Response(true, "Login bem-sucedido", safeUser), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(new Response(false, "Senha incorreta", null), HttpStatus.UNAUTHORIZED);

@@ -47,49 +47,6 @@ public class GerenteController {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @PostMapping("adicionar")
-    @Operation(
-            summary = "Endpoint para adicionar gerente",
-            description = "Retorna o último gerente adicionado"
-    )
-
-    @ApiResponse(responseCode = "403", description = "CPF ou E-mail duplicado", content = @Content(schema = @Schema(implementation = Response.class)))
-    public ResponseEntity<Object> inserir(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Request ilustrativa") @RequestBody GerenteDTO gerenteDTO)
-    {
-        try {
-            if (gerenteDTO.getNome() == null || gerenteDTO.getEmail() == null || gerenteDTO.getCpf() == null || gerenteDTO.getTelefone() == null) {
-                return new ResponseEntity<>(new Response(false, "Dados do gerente inválidos", null), HttpStatus.BAD_REQUEST);
-            }
-
-            Gerente gerenteObj = repo.saveAndFlush(mapper.map(gerenteDTO, Gerente.class));
-
-            List<Gerente> outrosGerentes = repo.findAll();
-            Gerente gerenteComMaisContas = outrosGerentes.stream()
-                    .filter(g -> g.getId() != gerenteObj.getId() && g.getQuantidadeContas() > 1)
-                    .max(Comparator.comparingInt(Gerente::getQuantidadeContas))
-                    .orElse(null);
-
-            if (gerenteComMaisContas != null) {
-                gerenteObj.setQuantidadeContas(1);  // Atribui uma conta ao novo gerente
-                gerenteComMaisContas.setQuantidadeContas(gerenteComMaisContas.getQuantidadeContas() - 1);
-                repo.save(gerenteComMaisContas);
-                repo.save(gerenteObj);
-
-                GerenteReassignmentDTO message = new GerenteReassignmentDTO(gerenteComMaisContas.getId(), gerenteObj.getId(), true);
-                messagingService.sendMessage("account.reassign.manager", message);
-            }
-
-            messagingService.sendMessage("manager.created", gerenteObj);
-            return new ResponseEntity<>(new Response(true, "Gerente criado com sucesso", gerenteObj), HttpStatus.OK);
-        } catch (DataIntegrityViolationException e) {
-            String mensagemErro = "Um registro com o mesmo CPF ou e-mail já existe.";
-            return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.CONFLICT);
-        } catch (Exception e) {
-            String mensagemErro = e.getMessage();
-            return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/listar")
     @Operation(summary = "Lista todos os gerentes")
     public ResponseEntity<Object> listarTodos() {
@@ -111,72 +68,6 @@ public class GerenteController {
                 return new ResponseEntity<>(new Response(false, "Gerente não encontrado", null), HttpStatus.NOT_FOUND);
             }
             return new ResponseEntity<>(new Response(true, "Gerente encontrado", gerente), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new Response(false, e.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PutMapping("/atualizar/{id}")
-    @ApiResponse(responseCode = "403", description = "CPF ou E-mail duplicado", content = @Content(schema = @Schema(implementation = Response.class)))
-    @Operation(summary = "Atualiza um gerente existente pelo ID")
-    public ResponseEntity<Object> atualizar(@PathVariable Long id, @RequestBody GerenteDTO gerenteDTO) {
-        try {
-            Gerente gerenteExistente = repo.findById(id).orElse(null);
-            if (gerenteExistente == null) {
-                return new ResponseEntity<>(new Response(false, "Gerente não encontrado", null), HttpStatus.NOT_FOUND);
-            }
-
-            if (gerenteExistente.getId() != id) {
-                return new ResponseEntity<>(new Response(false, "ID do gerente não pode ser alterado", null), HttpStatus.BAD_REQUEST);
-            }
-
-            gerenteExistente.setNome(gerenteDTO.getNome());
-            gerenteExistente.setEmail(gerenteDTO.getEmail());
-            repo.saveAndFlush(gerenteExistente);
-            messagingService.sendMessage("manager.edited", gerenteExistente);
-            return new ResponseEntity<>(new Response(true, "Gerente atualizado com sucesso", gerenteExistente), HttpStatus.OK);
-        } catch (DataIntegrityViolationException e) {
-            String mensagemErro = "Um registro com o mesmo CPF ou e-mail já existe.";
-            return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.CONFLICT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new Response(false, e.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @DeleteMapping("/remover/{id}")
-    @Operation(summary = "Remove um gerente pelo ID")
-    public ResponseEntity<Object> remover(@PathVariable Long id) {
-        try {
-            if (!repo.existsById(id)) {
-                return new ResponseEntity<>(new Response(false, "Gerente não encontrado", null), HttpStatus.NOT_FOUND);
-            }
-
-            Gerente gerenteToRemove = repo.findById(id).orElse(null);
-            if (gerenteToRemove == null) {
-                return new ResponseEntity<>(new Response(false, "Gerente não encontrado", null), HttpStatus.NOT_FOUND);
-            }
-
-            // Verificar se há mais de um gerente
-            if (repo.count() <= 1) {
-                return new ResponseEntity<>(new Response(false, "Não é permitido remover o último gerente do banco.", null), HttpStatus.BAD_REQUEST);
-            }
-
-            List<Gerente> gerentes = repo.findByIdNot(id);
-            Gerente gerenteComMenosContas = gerentes.stream()
-                    .min(Comparator.comparingInt(Gerente::getQuantidadeContas))
-                    .orElse(null);
-
-
-            if (gerenteComMenosContas == null) {
-                return new ResponseEntity<>(new Response(false, "Não foi possível encontrar um substituto para as contas.", null), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
-            gerenteComMenosContas.setQuantidadeContas(gerenteComMenosContas.getQuantidadeContas() + gerenteToRemove.getQuantidadeContas());
-            repo.save(gerenteComMenosContas);
-
-            GerenteReassignmentDTO message = new GerenteReassignmentDTO(gerenteToRemove.getId(), gerenteComMenosContas.getId(), false);
-            messagingService.sendMessage("reassign.manager", message);
-            return new ResponseEntity<>(new Response(true, "Gerente removido com sucesso", null), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new Response(false, e.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -1,5 +1,7 @@
 package com.apigateway.auth.auth.model;
 
+import com.apigateway.auth.auth.dto.ClienteDTO;
+import com.apigateway.auth.auth.dto.GerenteDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,15 +19,19 @@ public class User implements Serializable {
     public String senha;
     public String salt;
     public String cargo;
+    public GerenteDTO gerente;
+    public ClienteDTO cliente;
 
     public User() {}
 
-    public User(String nome, String email, String senha, String cargo, String salt) {
+    public User(String nome, String email, String senha, String cargo, String salt, GerenteDTO gerenteDTO, ClienteDTO clienteDTO) {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
         this.salt = salt;
         this.cargo = cargo;
+        this.gerente = gerenteDTO;
+        this.cliente = clienteDTO;
     }
 
     @Override
@@ -81,5 +87,21 @@ public class User implements Serializable {
 
     public void setCargo(String cargo) {
         this.cargo = cargo;
+    }
+
+    public GerenteDTO getGerente() {
+        return gerente;
+    }
+
+    public void setGerente(GerenteDTO gerenteDTO) {
+        this.gerente = gerenteDTO;
+    }
+
+    public ClienteDTO getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(ClienteDTO clienteDTO) {
+        this.cliente = clienteDTO;
     }
 }
