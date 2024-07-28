@@ -7,11 +7,11 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-const authService = "http://auth:8012/api/auth";
-const clienteService = "http://cliente:8008/api/cliente";
-const contaService = "http://conta:8010/api/conta";
-const gerenteService = "http://gerente:8011/api/gerente";
-const sagaService = "http://saga:8009";
+const authService = "http://localhost:8085/api/auth";
+const clienteService = "http://localhost:8081/api/cliente";
+const contaService = "http://localhost:8083/api/conta";
+const gerenteService = "http://localhost:8084/api/gerente";
+const sagaService = "http://localhost:8082";
 
 // ordem: auth, cliente, conta, gerente, saga
 
@@ -20,7 +20,7 @@ app
 // auth registro #R1
 .post("/adicionar", async (req: any, res: any) => {
     try {
-      const response = await axios.post(`${authService}`, {
+      const response = await axios.post(`${authService}/adicionar`, {
         ...req.body,
       });
       return res.json(response.data);
