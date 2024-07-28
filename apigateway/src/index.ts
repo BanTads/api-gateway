@@ -8,14 +8,14 @@ app.use(cors());
 app.use(express.json());
 
 const authService = "http://localhost:8085/api/auth";
-const clienteService = "http://localhost:8081/api/cliente";
-const contaService = "http://localhost:8083/api/conta";
-const gerenteService = "http://localhost:8084/api/gerente";
-const sagaService = "http://localhost:8082";
+const clienteService = "http://cliente:8008/api";
+const contaService = "http://conta:8010/api";
+const gerenteService = "http://gerente:8011/api";
+const sagaService = "http://saga:8009";
 
 // ordem: auth, cliente, conta, gerente, saga
 
-app  
+app
 
 // auth registro #R1
 .post("/adicionar", async (req: any, res: any) => {
@@ -65,7 +65,7 @@ app
 })
 */
 // get clientes
-.get("/listar", async (req: any, res: Response) => {
+.get("/cliente/listar", async (req: any, res: Response) => {
     try {
         const response = await axios.get(`${clienteService}`, {
         params: req.query,
