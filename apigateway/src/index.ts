@@ -8,10 +8,10 @@ app.use(cors());
 app.use(express.json());
 
 const authService = "http://localhost:8085/api/auth";
-const clienteService = "http://cliente:8008/api";
-const contaService = "http://conta:8010/api";
-const gerenteService = "http://gerente:8011/api";
-const sagaService = "http://saga:8009";
+const clienteService = "http://localhost:8081/api/cliente";
+const contaService = "http://localhost:8083/api/conta";
+const gerenteService = "http://localhost:8084/api/gerente";
+const sagaService = "http://localhost:8082/api";
 
 // ordem: auth, cliente, conta, gerente, saga
 
@@ -65,9 +65,9 @@ app
 })
 */
 // get clientes
-.get("/cliente/listar", async (req: any, res: Response) => {
+.get("/listar", async (req: any, res: Response) => {
     try {
-        const response = await axios.get(`${clienteService}`, {
+        const response = await axios.get(`${clienteService}/listar`, {
         params: req.query,
         });
         return res.json(response.data);
@@ -77,7 +77,7 @@ app
 })
 
 // get cliente pelo cpf
-.get("/cliente/cpf/:cpf", async (req: any, res: Response) => {
+.get("/cpf/:cpf", async (req: any, res: Response) => {
     try {
         const response = await axios.get(
             `${clienteService}/cpf/${req.params.cpf}`
@@ -92,10 +92,10 @@ app
 })
 
 //get relatorio de clientes
-.get("/cliente/cpf/:cpf", async (req: any, res: Response) => {
+.get("/relatorio", async (req: any, res: Response) => {
     try {
         const response = await axios.get(
-            `${clienteService}/cpf/${req.params.cpf}`
+            `${clienteService}/relatorio`
         );
 
         return res.json(response.data);
@@ -132,7 +132,7 @@ app
 // editar conta
 .put("/atualizar/:id", async (req: any, res: any) => {
     try {
-      const response = await axios.put(`${contaService}/${req.params.id}`, {
+      const response = await axios.put(`${contaService}/atualizar/${req.params.id}`, {
         ...req.body,
       });
       return res.json(response.data);
@@ -198,7 +198,7 @@ app
 .get("/saldo/:numeroConta", async (req: any, res: Response) => {
     try {
         const response = await axios.get(
-        `${contaService}/${req.params.id}`
+        `${contaService}/saldo/${req.params.id}`
         );
 
         return res.json(response.data);
@@ -208,10 +208,10 @@ app
 })
 
 // deposito, saque e transferencia #R5, R6 & R7
-.get("/transacao", async (req: any, res: any) => {
+.post("/transacao", async (req: any, res: any) => {
     try {
         const response = await axios.get(
-        `${contaService}`,
+        `${contaService}/transacao`,
         {
             ...req.body,
         }
@@ -222,24 +222,24 @@ app
     }
 })
 
-// get top 3 
-.get("/top3/:idGerente", async (req: any, res: any) => {
+// get extrato
+.get("/extrato", async (req: any, res: Response) => {
     try {
         const response = await axios.get(
-        `${contaService}/${req.params.idGerente}`);
+        `${contaService}/extrato`
+        );
+
         return res.json(response.data);
     } catch (error: any) {
         return res.status(error.response.status).json(error.response.data);
     }
 })
 
-// get extrato
-.get("/extrato", async (req: any, res: Response) => {
+// get top 3 
+.get("/top3/:idGerente", async (req: any, res: any) => {
     try {
         const response = await axios.get(
-        `${contaService}/${req.params.id}`
-        );
-
+        `${contaService}/top3/${req.params.idGerente}`);
         return res.json(response.data);
     } catch (error: any) {
         return res.status(error.response.status).json(error.response.data);
@@ -332,7 +332,7 @@ app
 // get gerente por email
 .get("/listar/email/:email", async (req: any, res: Response) => {
     try {
-      const response = await axios.get(`${gerenteService}/email/${req.params.email}`);
+      const response = await axios.get(`${gerenteService}/listar/email/${req.params.email}`);
 
       return res.json(response.data);
     } catch (error: any) {
@@ -355,6 +355,16 @@ app
 .get("/clientes/:idGerente", async (req: any, res: Response) => {
     try {
       const response = await axios.get(`${gerenteService}/clientes/${req.params.idGerente}`);
+      return res.json(response.data);
+    } catch (error: any) {
+      return res.status(error.response.status).json(error.response.data);
+    }
+})
+
+// get dashboard gerentes com  metricas de clientes e saldos
+.get("/admin/dashboard", async (req: any, res: Response) => {
+    try {
+      const response = await axios.get(`${gerenteService}/admin/dashboard`);
       return res.json(response.data);
     } catch (error: any) {
       return res.status(error.response.status).json(error.response.data);
