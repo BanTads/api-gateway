@@ -244,17 +244,15 @@ public class GerenteController {
         try {
             Gerente gerente = repo.findById(idGerente).orElse(null);
             if (gerente == null) {
-                return new ResponseEntity<>(new Response(false, "Gerente not found", null), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new Response(false, "Gerente não encontrado", null), HttpStatus.NOT_FOUND);
             }
             System.out.println(gerente);
 
-            // Fetch accounts associated with the manager
             String contasJson = (String) messagingService.sendAndReceiveMessage("conta.get.info.gerente", gerente.getId());
             List<ContaDTO> contas = objectMapper.readValue(contasJson, new TypeReference<List<ContaDTO>>() {});
 
             System.out.println(contas);
 
-            // Process each account to fetch client information
             List<ClienteRelatorioDTO> contasClientes = contas.stream().map(conta -> {
                 ClienteRelatorioDTO clienteRelatorioDTO = new ClienteRelatorioDTO();
                 String jsonCliente = (String) messagingService.sendAndReceiveMessage("client.get.info", conta.getIdCliente());
