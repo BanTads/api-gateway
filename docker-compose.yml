@@ -1,17 +1,21 @@
 version: '3.5'
 services:
   orquestrador:
-    image: "orquestrador_image:latest"
+    build:
+      context: ./orquestrador
+      dockerfile: Dockerfile
     ports:
       - 8082:8009
   cliente:
-    image: "cliente_image:latest"
+    build:
+      context: ./cliente
+      dockerfile: Dockerfile
     depends_on:
-      - cliente-pg-db
+      - pg-db
     container_name: cliente-container
     ports:
       - "8081:8008"
-  cliente-pg-db:
+  pg-db:
     image: postgres:alpine
     volumes:
       - ./init-script/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -20,7 +24,9 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
   auth:
-    image: "auth_image:latest"
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
     depends_on:
       - mongo
     ports:
@@ -35,11 +41,19 @@ services:
     volumes:
       - ./init-script/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
   conta:
-    image: "conta_image:latest"
+    build:
+      context: ./conta
+      dockerfile: Dockerfile
+    depends_on:
+      - pg-db
     ports:
       - 8083:8010
   gerente:
-    image: "gerente_image:latest"
+    build:
+      context: ./gerente
+      dockerfile: Dockerfile
+    depends_on:
+      - pg-db
     ports:
       - 8084:8011
 volumes:
