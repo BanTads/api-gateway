@@ -97,7 +97,7 @@ public class UserController {
     )
     public ResponseEntity<Object> adicionar(@RequestBody @Valid UserDTO userDTO) {
         try {
-            return helper.removeUser(userDTO.getEmail());
+            return helper.saveUser(userDTO);
         }catch (Exception e) {
             String mensagemErro = e.getMessage();
             return new ResponseEntity<>(new Response(false, mensagemErro, null), HttpStatus.BAD_REQUEST);

@@ -57,5 +57,5 @@ services:
     ports:
       - 8084:8011
 volumes:
-  cliente-db:
+  pg-db:
   mongo-db:

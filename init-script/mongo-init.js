@@ -55,3 +55,19 @@ db.usuarios.insertOne({
   salt: 'FDoCrbm/ZQTDtKghIfZM9A==',
   cargo: 'ADMIN'
 });
+
+db.usuarios.insertOne({
+  nome: 'Cliente exemplo',
+  email: 'cliente@exemplo.com',
+  senha: 'a1de33fa9623e80899f0244ee35eb7c04066c0a4052e98f5995db54767d6638d',
+  salt: '4aX9mHE3UYa3HiFM1xD0mw==',
+  cargo: 'CLIENTE'
+});
+
+db.usuarios.insertOne({
+  nome: 'Gerente exemplo',
+  email: 'gerente@exemplo.com',
+  senha: '90227ce5b14e4b91ef1abf9e1b9fa9a431f82d7792ffb87db09389da5fee7418',
+  salt: 'PI1CjoaoLS2c9U8jgjUPkw==',
+  cargo: 'GERENTE'
+});

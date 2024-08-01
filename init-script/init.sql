@@ -12,6 +12,10 @@ CREATE TABLE public.enderecos (
     uf CHAR(2) NOT NULL
 );
 
+INSERT INTO public.enderecos (tipo, logradouro, numero, complemento, cep, cidade, uf)
+VALUES ('Residencial', 'Rua Exemplo', '123', 'Apto 456', '12345-678', 'Cidade Exemplo', 'EX');
+
+
 CREATE TABLE public.clientes (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
@@ -22,6 +26,9 @@ CREATE TABLE public.clientes (
     id_endereco INT,
     FOREIGN KEY (id_endereco) REFERENCES enderecos(id)
 );
+
+INSERT INTO public.clientes (nome, email, cpf, telefone, salario, id_endereco)
+VALUES ('Cliente exemplo', 'cliente@exemplo.com', '123.456.789-00', '(12) 12345-1234', 5000.00, 1);
 
 CREATE DATABASE conta;
 \c conta;
@@ -59,3 +66,6 @@ CREATE TABLE public.gerentes (
     telefone VARCHAR(20) NOT NULL,
     quantidade_contas integer
 );
+
+INSERT INTO public.gerentes (nome, email, cpf, telefone, quantidade_contas)
+VALUES ('Gerente Exemplo', 'gerente@exemplo.com', '123.456.789-00', '(12) 12345-1234', 0);

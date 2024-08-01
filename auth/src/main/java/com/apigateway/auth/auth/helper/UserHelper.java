@@ -40,6 +40,7 @@ public class UserHelper {
             String randomPassword = SecurityUtil.generateRandomPassword(12);
             byte[] salt = SecurityUtil.getSalt(); //gerando o salt
             String securePassword = SecurityUtil.getSecurePassword(randomPassword, salt); //gerando a senha em SHA-256 + salt
+
             user.setSenha(securePassword); //setando a senha
             user.setSalt(Base64.encodeBase64String(salt)); //setando o salt em base64
             User userObj = repo.save(user);
