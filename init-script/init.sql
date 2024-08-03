@@ -43,6 +43,9 @@ CREATE TABLE public.contas (
     id_gerente INT
 );
 
+INSERT INTO public.contas (aprovada, id_cliente, data_criacao, motivo, limite, id_gerente)
+VALUES (false, 1, '2024-08-03', null, 2500.00, 1);
+
 CREATE TYPE public.tipo_movimentacao AS ENUM ('DEPOSITO', 'SAQUE', 'TRANSFERENCIA');
 
 CREATE TABLE public.movimentacao (
