@@ -328,3 +328,21 @@ app
   app.use((err: Error, res: any) => {
     res.status(500).json({ message: err.message });
   });
+
+  
+  /*error message log no caso de der status error
+
+    <-- adicionar isso no lugar de todos os catch -->
+    } catch (error: any) {
+        handleError(error, res);
+    }
+
+    <-- substituir o atual error message log por isso -->
+    const handleError = (error: any, res: Response) => {
+    if (error.response && error.response.status) {
+        return res.status(error.response.status).json(error.response.data);
+    } else {
+        return res.status(500).json({ message: error.message });
+    }
+
+  */
