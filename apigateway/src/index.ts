@@ -7,11 +7,11 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-const authService = "http://localhost:8085/api/auth";
-const clienteService = "http://localhost:8081/api/cliente";
-const contaService = "http://localhost:8083/api/conta";
-const gerenteService = "http://localhost:8084/api/gerente";
-const sagaService = "http://localhost:8082/api";
+const authService = "http://host.docker.internal:8085/api/auth";
+const clienteService = "http://host.docker.internal:8081/api/cliente";
+const contaService = "http://host.docker.internal:8083/api/conta";
+const gerenteService = "http://host.docker.internal:8084/api/gerente";
+const sagaService = "http://host.docker.internal:8082/api";
 
 // ordem: auth, cliente, conta, gerente, saga
 
@@ -37,7 +37,7 @@ app
       });
       return res.json(response.data);
     } catch (error: any) {
-      return res.status(error.response.status).json(error.response.data);
+        return res.status(error.response.status).json(error.response.data);
     }
 })
 

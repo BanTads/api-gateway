@@ -56,6 +56,18 @@ services:
       - pg-db
     ports:
       - 8084:8011
+  apigateway:
+    build:
+      context: ./apigateway
+      dockerfile: Dockerfile
+    depends_on:
+      - orquestrador
+      - cliente
+      - auth
+      - conta
+      - gerente
+    ports:
+      - "3000:3000"
 volumes:
   pg-db:
   mongo-db:
