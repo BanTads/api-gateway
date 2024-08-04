@@ -111,7 +111,7 @@ app
 // deposito, saque e transferencia #R5, R6 & R7
 .post("/transacao", async (req: any, res: any) => {
     try {
-        const response = await axios.get(
+        const response = await axios.post(
         `${contaService}/transacao`,
         {
             ...req.body,
@@ -159,7 +159,7 @@ app
 }) 
 
 // get gerentes #R19
-.get("/listar", async (req: any, res: Response) => {
+.get("/gerente/listar", async (req: any, res: Response) => {
     try {
       const response = await axios.get(`${gerenteService}/listar`);
       return res.json(response.data);
@@ -194,7 +194,7 @@ app
 // deletar gerente #R18
 .delete("/remover/:id", async (req: any, res: any) => {
     try {
-      const response = await axios.delete(`${gerenteService}/remover/${req.params.id}`, {
+      const response = await axios.delete(`${sagaService}/gerente/remover/${req.params.id}`, {
           ...req.body,
         }
       );
