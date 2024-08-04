@@ -194,9 +194,7 @@ app
 // deletar gerente #R18
 .delete("/remover/:id", async (req: any, res: any) => {
     try {
-      const response = await axios.delete(`${sagaService}/gerente/remover/${req.params.id}`, {
-          ...req.body,
-        }
+      const response = await axios.delete(`${sagaService}/gerente/remover/${req.params.id}`, {}
       );
       return res.json(response.data);
     } catch (error: any) {
@@ -279,7 +277,7 @@ app
 // saga gerente - create #R17
 .post("/gerente/adicionar", async (req: any, res: any) => {
     try {
-        const response = await axios.post(`${sagaService}/adicionar`, {
+        const response = await axios.post(`${sagaService}/gerente/adicionar`, {
         ...req.body,
         });
         return res.json(response.data);
