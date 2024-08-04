@@ -124,12 +124,11 @@ app
 })
 
 // get extrato
-.get("/extrato", async (req: any, res: Response) => {
+.get("/extrato/:idConta/:dataInicial/:dataFinal", async (req: any, res: Response) => {
     try {
         const response = await axios.get(
-        `${contaService}/extrato`
+        `${contaService}/extrato?idConta=${req.params.idConta}&dataInicio=${req.params.dataInicial}&dataFim=${req.params.dataFinal}`
         );
-
         return res.json(response.data);
     } catch (error: any) {
         return res.status(error.response.status).json(error.response.data);
