@@ -275,7 +275,6 @@ public class OrquestradorController {
             UserChangeDTO userChangeDTO = new UserChangeDTO();
             GerenteDTO oldManagerDTO = new GerenteDTO();
             String jsonOldManager = (String) messagingService.sendAndReceiveMessageSimple("gerente.get.info", id);
-            System.out.print(jsonOldManager);
             oldManagerDTO = gson.fromJson(jsonOldManager, GerenteDTO.class);
 
             userChangeDTO.setOldEmail(oldManagerDTO.getEmail());
@@ -309,8 +308,11 @@ public class OrquestradorController {
 
     @DeleteMapping("/gerente/remover/{id}")
     @Operation(summary = "Remove um gerente pelo ID")
-    public ResponseEntity<Object> removerGerente(@PathVariable Long id, @RequestBody GerenteDTO gerenteDTO) {
+    public ResponseEntity<Object> removerGerente(@PathVariable Long id) {
         try {
+            String jsonOldManager = (String) messagingService.sendAndReceiveMessageSimple("gerente.get.info", id);
+            GerenteDTO gerenteDTO = gson.fromJson(jsonOldManager, GerenteDTO.class);
+
             GerenteDTO newManagerDTO = new GerenteDTO();
             gerenteDTO.setId(id);
             Response responseNewManager = (Response) messagingService.sendAndReceiveMessage(QueueConstants.VERIFY_AND_FIND_NEW_MANAGER, gerenteDTO);
