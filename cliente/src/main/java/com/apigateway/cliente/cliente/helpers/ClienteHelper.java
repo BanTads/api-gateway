@@ -91,6 +91,9 @@ public class ClienteHelper {
                 if (enderecoDTO.getUf() != null) {
                     enderecoExistente.setUf(enderecoDTO.getUf());
                 }
+                if(enderecoDTO.getTipo() != null) {
+                    enderecoExistente.setTipo(enderecoDTO.getTipo());
+                }
                 clienteExistente.setEndereco(enderecoExistente);
             }
 
